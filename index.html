@@ -22,6 +22,14 @@
 .native-file-picker{display:block!important;position:static!important;opacity:1!important;clip:auto!important;width:100%!important;height:auto!important;min-height:48px!important;margin:0!important;padding:10px!important;overflow:visible!important;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--surface)!important;color:var(--text)!important;white-space:normal!important;z-index:auto!important}
 .drop-zone{cursor:default!important}
 
+.batch-results{display:grid;gap:10px;margin-top:12px}
+.batch-result-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.batch-result-item>div{min-width:0;display:grid;gap:4px}
+.batch-result-item strong{overflow-wrap:anywhere;font-size:13px}
+.batch-result-item small{color:var(--muted);font-size:12px}
+.batch-download{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding:8px 12px;border-radius:8px;color:#fff;background:var(--primary);font-size:12px;font-weight:700}
+@media(max-width:600px){.batch-result-item{align-items:flex-start;flex-direction:column}.batch-download{width:100%}}
+
 </style>
 </head>
 <body>
@@ -79,7 +87,8 @@ const CATEGORIES = [
  ["Percentage Resizer","Resize by a percentage of original dimensions.","percent"],
  ["Image Compressor","Adjust output quality for supported formats.","compress"],
  ["Compress to Exact KB","Try to meet a maximum target file size.","targetkb"],
- ["Bulk Image Resizer","Resize multiple images one by one.","bulk"],
+ ["Bulk Image Resizer","Resize multiple images to the same pixel dimensions.","bulk"],
+ ["Bulk Aspect Ratio Changer","Apply the same aspect ratio to multiple images by cropping or fitting the canvas.","bulkaspect"],
  ["Bulk Image Compressor","Compress multiple images one by one.","bulkcompress"],
  ["Aspect Ratio Resizer","Resize while preserving aspect ratio.","aspect"],
  ["Passport Photo Resizer","Choose a common pixel size for a photo.","passport"],
@@ -149,7 +158,7 @@ const CATEGORIES = [
 ];
 const allTools = CATEGORIES.flatMap(c=>c.tools.map(t=>({...{name:t[0],desc:t[1],mode:t[2],category:c.name,icon:c.icon}})));
 const $ = id => document.getElementById(id);
-let currentTool = allTools[0], sourceFile=null, sourceImage=null, outputBlob=null, outputName="pixeltoolkit-output.png", imageFiles=[];
+let currentTool = allTools[0], sourceFile=null, sourceImage=null, outputBlob=null, outputName="pixeltoolkit-output.png", imageFiles=[], batchOutputs=[];
 const nav=$("categoryNav"), grid=$("toolGrid"), search=$("toolSearch");
 if ($("toolCount")) $("toolCount").textContent = "Loading tools…";
 function formatBytes(n){if(!Number.isFinite(n))return "—";if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";return (n/1048576).toFixed(2)+" MB"}
@@ -162,6 +171,8 @@ function field(label,id,value,type="number",extra=""){return `<div class="field"
 function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
 function renderControls(){let m=currentTool.mode,html="";
 if(m==="advanced"){html=`<p class="danger"><strong>Not enabled in this starter.</strong></p><p class="notice">This catalogue entry needs an additional tested library/model or a dedicated implementation. It will not pretend to process the image until that module is added.</p>`}
+else if(m==="bulk"){html=field("Output width (px)","width",sourceImage?.naturalWidth||800)+field("Output height (px)","height",sourceImage?.naturalHeight||600)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label><p class="notice">Select multiple images in the file picker. Each image will be processed and shown with its own download link.</p>`}
+else if(m==="bulkaspect"){html=selectField("Target aspect ratio","aspectPreset",[["1:1","Square · 1:1"],["4:3","Landscape · 4:3"],["3:2","Photo · 3:2"],["16:9","Widescreen · 16:9"],["9:16","Portrait · 9:16"],["3:4","Portrait · 3:4"],["custom","Custom ratio"]])+field("Custom ratio width","ratioW",4)+field("Custom ratio height","ratioH",3)+selectField("How to fit images","aspectFit",[["crop","Crop to exact ratio"],["fit","Fit inside canvas (add white space)"]])+field("Output width (px)","width",1080)+`<p class="notice">The selected ratio will be applied to every selected image. Each result gets a separate download link.</p>`}
 else if(["resize","aspect","passport","signature","social","webopt","percent"].includes(m)){let w=sourceImage?.naturalWidth||800,h=sourceImage?.naturalHeight||600;if(m==="passport"){w=600;h=800}if(m==="signature"){w=600;h=200}if(m==="social"){w=1080;h=1080}html=field("Width (px)","width",w)+field("Height (px)","height",h)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label>`+(m==="percent"?field("Scale (%)","scale",50):"")}
 else if(["compress","bulkcompress"].includes(m)){html=field("Quality (%)","quality",80,"range",'min="10" max="100"')+`<div class="notice">JPEG/WebP quality setting. PNG compression is lossless and may not respond to this control.</div>`}
 else if(m==="targetkb"){html=field("Maximum target size (KB)","targetKB",100)+field("Maximum width (px, optional)","width",0)+`<div class="notice">The tool will try several quality levels. If needed, it will reduce dimensions. Some targets are not achievable without visible quality loss.</div>`}
@@ -231,12 +242,78 @@ $("removeFile").onclick=()=>{sourceFile=null;sourceImage=null;outputBlob=null;im
 function canvasBlob(canvas,type,quality){return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("This output format is not supported by the browser.")),type,quality))}
 function drawToCanvas(){const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const x=c.getContext("2d");x.drawImage(sourceImage,0,0);return [c,x]}
 async function processOne(file,mode){const img=await createImageBitmap(file);let c=document.createElement("canvas"),x=c.getContext("2d"),w=img.width,h=img.height;c.width=w;c.height=h;x.drawImage(img,0,0);if(mode==="resize"){w=Math.max(1,parseInt($("width").value)||w);h=Math.max(1,parseInt($("height").value)||h);c.width=w;c.height=h;x=c.getContext("2d");x.drawImage(img,0,0,w,h)}return await canvasBlob(c,"image/png");}
+async function processBatch(mode){
+ const files=(imageFiles&&imageFiles.length?imageFiles:[sourceFile]).filter(Boolean);
+ if(!files.length){showResult("Choose one or more images first.");return}
+ if(files.length<2)showResult("Only one image is selected. You can still process it here.");
+ const get=(id,def)=>{const el=$(id);return el?el.value:def};
+ const num=(id,def)=>{const n=Number(get(id,def));return Number.isFinite(n)&&n>0?n:def};
+ const keepRatio=$("keepRatio")?.checked??true;
+ let ratio=4/3;
+ if(mode==="bulkaspect"){
+   const preset=get("aspectPreset","4:3");
+   if(preset==="custom")ratio=num("ratioW",4)/num("ratioH",3);
+   else {const parts=preset.split(":").map(Number);ratio=parts[0]/parts[1]}
+   if(!Number.isFinite(ratio)||ratio<=0)throw new Error("Enter a valid aspect ratio.");
+ }
+ const outputs=[];
+ for(let i=0;i<files.length;i++){
+   const file=files[i];
+   setStatus(`Processing ${i+1} of ${files.length}…`);
+   const bitmap=await createImageBitmap(file);
+   let sw=bitmap.width,sh=bitmap.height,sx=0,sy=0;
+   let outW=bitmap.width,outH=bitmap.height;
+   if(mode==="bulk"){
+     outW=Math.max(1,Math.round(num("width",bitmap.width)));
+     outH=Math.max(1,Math.round(num("height",bitmap.height)));
+     if(keepRatio){const r=bitmap.width/bitmap.height;if(outW/outH>r)outW=Math.max(1,Math.round(outH*r));else outH=Math.max(1,Math.round(outW/r))}
+   } else if(mode==="bulkaspect"){
+     const targetW=Math.max(1,Math.round(num("width",1080)));
+     const targetH=Math.max(1,Math.round(targetW/ratio));
+     outW=targetW;outH=targetH;
+     if(get("aspectFit","crop")==="crop"){
+       const sourceRatio=bitmap.width/bitmap.height;
+       if(sourceRatio>ratio){sh=bitmap.height;sw=Math.round(sh*ratio);sx=Math.round((bitmap.width-sw)/2)}
+       else {sw=bitmap.width;sh=Math.round(sw/ratio);sy=Math.round((bitmap.height-sh)/2)}
+     }
+   }
+   const canvas=document.createElement("canvas");canvas.width=outW;canvas.height=outH;
+   const ctx=canvas.getContext("2d");
+   if(mode==="bulkaspect"&&get("aspectFit","crop")==="fit"){
+     ctx.fillStyle="#ffffff";ctx.fillRect(0,0,outW,outH);
+     const scale=Math.min(outW/bitmap.width,outH/bitmap.height);
+     const dw=Math.round(bitmap.width*scale),dh=Math.round(bitmap.height*scale);
+     ctx.drawImage(bitmap,Math.round((outW-dw)/2),Math.round((outH-dh)/2),dw,dh);
+   }else{
+     ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,outW,outH);
+   }
+   const type=(mode==="bulkcompress")?(file.type==="image/webp"?"image/webp":"image/jpeg"):(["image/jpeg","image/webp","image/png"].includes(file.type)?file.type:"image/png");
+   const q=mode==="bulkcompress"?Math.min(.95,Math.max(.1,Number(get("quality",80))/100)):.92;
+   const blob=await canvasBlob(canvas,type,q);
+   const ext=type==="image/jpeg"?"jpg":type==="image/webp"?"webp":"png";
+   const safeName=(file.name||`image-${i+1}`).replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-").slice(0,80)||`image-${i+1}`;
+   outputs.push({name:`${safeName}-${mode}.${ext}`,blob,width:outW,height:outH,original:file});
+   if(bitmap.close)bitmap.close();
+ }
+ batchOutputs=outputs;
+ outputBlob=outputs[0]?.blob||null;
+ outputName=outputs[0]?.name||"pixeltoolkit-output.png";
+ $("downloadButton").disabled=!outputBlob;
+ const cards=outputs.map((o,i)=>{
+   const url=URL.createObjectURL(o.blob);
+   return `<div class="batch-result-item"><div><strong>${escapeHtml(o.name)}</strong><small>${o.width} × ${o.height} · ${formatBytes(o.blob.size)} (was ${formatBytes(o.original.size)})</small></div><a class="primary-button batch-download" href="${url}" download="${escapeHtml(o.name)}">Download</a></div>`;
+ }).join("");
+ $("resultBox").innerHTML=`<strong>Done: ${outputs.length} image${outputs.length===1?"":"s"} processed.</strong><p>Tap each Download button to save its output. The main Download output button downloads the first result.</p><div class="batch-results">${cards}</div>`;
+ $("resultBox").classList.remove("hidden");
+ setStatus(`Done · ${outputs.length} images processed`);
+}
 async function processImage(){
  if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
  const m=currentTool.mode;
  if(m==="advanced"){showResult("This tool needs an additional library or model. It is listed in the catalogue but is not implemented in this starter.");return}
  setStatus("Processing…");$("processButton").disabled=true;
  try{
+  if(["bulk","bulkaspect","bulkcompress"].includes(m)){await processBatch(m);return;}
   let c=document.createElement("canvas"),x=c.getContext("2d"),w=sourceImage.naturalWidth,h=sourceImage.naturalHeight;
   const get=(id,def)=>{const el=$(id);return el?el.value:def};
   const num=(id,def)=>Math.max(0,Number(get(id,def))||0);
@@ -271,7 +348,11 @@ async function processImage(){
   else if(m==="base64"){const reader=new FileReader();reader.onload=()=>showResult(String(reader.result).slice(0,400)+"… (preview truncated; full data URL is not displayed here)");reader.readAsDataURL(sourceFile);setStatus("Done");return}
   else if(m==="color"){showResult("Tap the image preview to sample a color.");return}
   else if(m==="palette"){const data=x.getImageData(0,0,Math.min(w,150),Math.min(h,150)).data;const counts={};for(let i=0;i<data.length;i+=40){const key=[data[i],data[i+1],data[i+2]].map(v=>Math.round(v/32)*32).map(v=>Math.min(255,v)).join(",");counts[key]=(counts[key]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([rgb])=>{const [r,g,b]=rgb.split(",").map(Number);return `rgb(${r}, ${g}, ${b})`});showResult("Sampled palette: "+top.join(" · "));return}
-  else if(m==="inspect"){showResult(`Name: ${sourceFile.name}\nMIME: ${sourceFile.type||"unknown"}\nDimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}\nFile size: ${formatBytes(sourceFile.size)}\nEXIF fields depend on browser support.`);return}
+  else if(m==="inspect"){showResult(`Name: ${sourceFile.name}
+MIME: ${sourceFile.type||"unknown"}
+Dimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}
+File size: ${formatBytes(sourceFile.size)}
+EXIF fields depend on browser support.`);return}
   else {x.drawImage(sourceImage,sx,sy,sw,sh,0,0,w,h)}
   if(["compress","bulkcompress"].includes(m)||m==="targetkb"||["jpg","webp","png","whitebg","bgcolor","favicon"].includes(m)){
     // Image has already been drawn. Target-KB uses iterative quality and then downscales if needed.
