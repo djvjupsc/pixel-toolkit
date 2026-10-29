@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Free browser-based image tools to resize, compress, crop, convert and optimize images.">
+<meta name="theme-color" content="#101828">
+<title>PixelToolkit — Free Online Image Tools</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="PixelToolkit home"><span class="brand-icon">▧</span><span>Pixel<span class="accent">Toolkit</span></span></a>
+  <div class="top-actions"><span class="privacy-pill">● Browser-first processing</span><button id="themeToggle" class="icon-button" aria-label="Toggle theme">◐</button></div>
+</header>
+<div class="app-shell">
+  <aside class="sidebar">
+    <label class="search-label" for="toolSearch">Find a tool</label>
+    <input id="toolSearch" class="search" placeholder="Search tools…" autocomplete="off">
+    <nav id="categoryNav" aria-label="Tool categories"></nav>
+    <div class="sidebar-note"><strong>Privacy first</strong><p>Core image operations run on your device. Files are not uploaded by this static app.</p></div>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <div class="eyebrow">FREE ONLINE IMAGE WORKSPACE</div>
+      <h1>Every image task.<br><span class="gradient-text">One simple toolkit.</span></h1>
+      <p>Resize, compress, convert and edit images in one place. No account required.</p>
+      <div class="hero-chips"><span>✓ Browser processing</span><span>✓ Mobile-friendly</span><span>✓ No upload for core tools</span></div>
+    </section>
+    <section class="workspace">
+      <div class="workspace-head"><div><div class="eyebrow">WORKSPACE</div><h2 id="selectedToolTitle">Image Resizer</h2><p id="selectedToolDescription">Resize an image by pixels while preserving its aspect ratio.</p></div><span id="toolStatus" class="status">Ready</span></div>
+      <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Choose image file">
+        <input id="fileInput" type="file" accept="image/*" hidden>
+        <div class="upload-icon">↑</div><strong>Drop an image here</strong><span>or tap to choose a file from your phone</span><small>Use a copy of sensitive images. Very large files may exceed your device's memory.</small>
+      </div>
+      <div id="editor" class="editor hidden">
+        <div class="preview-panel">
+          <div class="preview-head"><strong>Preview</strong><button id="removeFile" class="text-button">Remove image</button></div>
+          <div class="preview-canvas"><img id="previewImage" alt="Selected image preview"></div>
+          <div class="file-stats" id="fileStats"></div>
+        </div>
+        <div class="settings-panel">
+          <h3>Settings</h3>
+          <div id="toolControls"></div>
+          <div class="button-row"><button id="processButton" class="primary-button">Process image</button><button id="resetButton" class="secondary-button">Reset</button></div>
+          <div id="resultBox" class="result-box hidden"></div>
+        </div>
+      </div>
+      <div class="workspace-foot"><span>Tip: select a tool from the left menu; the same uploaded image stays in the workspace.</span><button id="downloadButton" class="primary-button" disabled>Download output</button></div>
+    </section>
+    <section class="tool-directory"><div class="section-head"><div><div class="eyebrow">TOOL DIRECTORY</div><h2>Explore all tools</h2></div><span id="toolCount" class="count-badge">60 tools planned</span></div><div id="toolGrid" class="tool-grid"></div></section>
+    <section class="disclaimer"><strong>Feature availability notice</strong><p>This starter includes working browser-based features for common operations and a full catalogue of planned tools. AI background removal, upscaling, restoration and some document conversions may need additional models or libraries before they can be released. The app does not claim those advanced tools are implemented merely because they appear in the directory.</p></section>
+    <footer><span>© <span id="year"></span> PixelToolkit · Working name; check domain and trademark availability.</span><div><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="about.html">About</a></div></footer>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
