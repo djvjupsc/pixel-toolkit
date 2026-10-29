@@ -32,6 +32,75 @@
 
 .button-row .primary-button{min-height:42px}
 @media(max-width:600px){.button-row .primary-button{width:100%}}
+
+/* Responsive polish and selected-image carousel */
+.preview-carousel{display:flex;align-items:center;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--surface)}
+.carousel-arrow{flex:0 0 36px;width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:24px;line-height:1}
+.carousel-center{flex:1;min-width:0}
+.preview-counter{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin:0 0 7px}
+.preview-thumbs{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 2px 7px;scroll-snap-type:x mandatory}
+.preview-thumb{flex:0 0 68px;width:68px;height:62px;padding:3px;border:2px solid transparent;border-radius:9px;background:var(--bg);scroll-snap-align:center;overflow:hidden}
+.preview-thumb.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(49,87,213,.12)}
+.preview-thumb img{display:block;width:100%;height:100%;object-fit:contain}
+.preview-thumb span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--muted)}
+.preview-canvas img{max-width:100%;max-height:58vh;object-fit:contain}
+.tool-directory{scroll-margin-top:80px}
+.tool-group-heading{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px 3px;margin-top:8px;border-bottom:1px solid var(--border)}
+.tool-group-heading strong{font-size:14px;color:var(--text)}
+.tool-group-heading span{font-size:11px;color:var(--muted);white-space:nowrap}
+.tool-card{min-width:0;min-height:86px}
+.tool-card strong,.tool-card small{overflow-wrap:anywhere}
+.batch-result-item{min-width:0}
+.batch-download{border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+@media(max-width:900px){
+  .app-shell{display:block;width:100%;max-width:100%}
+  .sidebar{position:relative;min-height:0;padding:12px 14px}
+  #categoryNav{display:flex;gap:7px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+  .nav-item{flex:0 0 auto;width:auto;white-space:nowrap;padding:9px 11px}
+  .sidebar-note{display:none}
+  .main{padding:16px 14px 24px}
+  .editor{grid-template-columns:minmax(0,1fr);padding:0 12px 14px;gap:12px}
+  .preview-panel,.settings-panel{width:100%}
+}
+@media(max-width:600px){
+  body{font-size:14px;overflow-x:hidden}
+  .topbar{height:58px;padding:0 12px}
+  .brand{font-size:18px;gap:7px}
+  .brand-icon{width:30px;height:30px;font-size:20px}
+  .privacy-pill{display:none}
+  .main{padding:12px 10px 20px}
+  .hero{padding:12px 0 18px}
+  .hero h1{font-size:clamp(28px,8vw,36px);letter-spacing:-1px}
+  .hero p{font-size:13px}
+  .hero-chips{gap:6px;margin-top:12px}
+  .hero-chips span{font-size:10px;padding:6px 8px}
+  .workspace{border-radius:14px}
+  .workspace-head{padding:15px 14px}
+  .workspace-head h2{font-size:19px}
+  .workspace-head p{font-size:12px}
+  .status{font-size:10px;padding:4px 8px}
+  .preview-head{padding:10px 12px}
+  .preview-canvas{min-height:180px;padding:8px}
+  .preview-canvas img{max-height:44vh}
+  .file-stats{gap:6px;padding:9px 10px;flex-wrap:wrap;overflow-wrap:anywhere}
+  .settings-panel{padding:12px}
+  .tool-grid{grid-template-columns:minmax(0,1fr);gap:8px}
+  .tool-card{display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;min-height:68px;padding:12px}
+  .tool-card .card-icon{grid-row:1/3;align-self:center}
+  .tool-card strong{font-size:13px}
+  .tool-card small{font-size:11px}
+  .batch-result-item{padding:10px}
+  .batch-download{width:100%;min-height:42px}
+  .button-row{display:flex;flex-wrap:wrap}
+  .button-row button{flex:1 1 140px}
+  .workspace-foot{padding:12px;gap:10px}
+  .workspace-foot .primary-button{width:100%}
+  .section-head{align-items:flex-start;gap:10px}
+  .section-head h2{font-size:23px}
+  .count-badge{white-space:nowrap;font-size:10px}
+  footer,footer div{flex-wrap:wrap}
+}
+
 </style>
 </head>
 <body>
@@ -66,6 +135,11 @@
         <div class="preview-panel">
           <div class="preview-head"><strong>Preview</strong><button id="removeFile" class="text-button">Remove image</button></div>
           <div class="preview-canvas"><img id="previewImage" alt="Selected image preview"></div>
+          <div id="previewCarousel" class="preview-carousel hidden" aria-label="Selected image previews">
+            <button id="previewPrev" class="carousel-arrow" type="button" aria-label="Previous image">‹</button>
+            <div class="carousel-center"><div id="previewCounter" class="preview-counter"></div><div id="previewThumbs" class="preview-thumbs"></div></div>
+            <button id="previewNext" class="carousel-arrow" type="button" aria-label="Next image">›</button>
+          </div>
           <div class="file-stats" id="fileStats"></div>
         </div>
         <div class="settings-panel">
@@ -160,14 +234,30 @@ const CATEGORIES = [
 ];
 const allTools = CATEGORIES.flatMap(c=>c.tools.map(t=>({...{name:t[0],desc:t[1],mode:t[2],category:c.name,icon:c.icon}})));
 const $ = id => document.getElementById(id);
-let currentTool = allTools[0], sourceFile=null, sourceImage=null, outputBlob=null, outputName="pixeltoolkit-output.png", imageFiles=[], batchOutputs=[];
+let currentTool = allTools[0], sourceFile=null, sourceImage=null, outputBlob=null, outputName="pixeltoolkit-output.png", imageFiles=[], batchOutputs=[], previewIndex=0;
 const nav=$("categoryNav"), grid=$("toolGrid"), search=$("toolSearch");
 if ($("toolCount")) $("toolCount").textContent = "Loading tools…";
 function formatBytes(n){if(!Number.isFinite(n))return "—";if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";return (n/1048576).toFixed(2)+" MB"}
 function setStatus(s){$("toolStatus").textContent=s}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function renderNav(){nav.innerHTML=CATEGORIES.map(c=>`<button class="nav-item ${currentTool.category===c.name?"active":""}" data-category="${escapeHtml(c.name)}"><span class="nav-icon">${c.icon}</span>${escapeHtml(c.name)}</button>`).join("");nav.querySelectorAll("button").forEach(b=>b.onclick=()=>{search.value="";renderGrid(b.dataset.category);});}
-function renderGrid(category=null, query=""){let items=allTools.filter(t=>(!category||t.category===category)&&(`${t.name} ${t.desc} ${t.category}`.toLowerCase().includes(query.toLowerCase())));grid.innerHTML=items.map(t=>`<button class="tool-card ${t.name===currentTool.name?"selected":""}" data-tool="${escapeHtml(t.name)}"><span class="card-icon">${t.icon}</span><strong>${escapeHtml(t.name)}</strong><small class="${t.mode==="advanced"?"planned":""}">${t.mode==="advanced"?"Advanced / dependency required":escapeHtml(t.category)}</small></button>`).join("");$("toolCount").textContent=`${allTools.length} tools in catalogue`;grid.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(allTools.find(t=>t.name===b.dataset.tool)));renderNav();}
+function renderGrid(category=null, query=""){
+ let items=allTools.filter(t=>(!category||t.category===category)&&(`${t.name} ${t.desc} ${t.category}`.toLowerCase().includes(query.toLowerCase())));
+ const card=t=>`<button class="tool-card ${t.name===currentTool.name?"selected":""}" data-tool="${escapeHtml(t.name)}"><span class="card-icon">${t.icon}</span><strong>${escapeHtml(t.name)}</strong><small class="${t.mode==="advanced"?"planned":""}">${t.mode==="advanced"?"Advanced / dependency required":escapeHtml(t.category)}</small></button>`;
+ let markup="";
+ if(!category&&!query){
+  CATEGORIES.forEach(c=>{
+   const group=items.filter(t=>t.category===c.name);
+   if(!group.length)return;
+   markup+=`<div class="tool-group-heading"><strong>${escapeHtml(c.icon)} ${escapeHtml(c.name)}</strong><span>${group.length} tools</span></div>`;
+   markup+=group.map(card).join("");
+  });
+ }else markup=items.map(card).join("");
+ grid.innerHTML=markup;
+ $("toolCount").textContent=`${allTools.length} tools in catalogue`;
+ grid.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(allTools.find(t=>t.name===b.dataset.tool)));
+ renderNav();
+}
 function selectTool(t){currentTool=t;$("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
 function field(label,id,value,type="number",extra=""){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}" ${extra}></div>`}
 function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
@@ -195,7 +285,40 @@ else if(m==="inspect"){html=`<p class="notice">Basic dimensions, MIME type and s
 else{html=`<p class="notice">This operation is not available for the current file or needs additional implementation.</p>`}
 $("toolControls").innerHTML=html;}
 function showResult(msg){$("resultBox").textContent=msg;$("resultBox").classList.remove("hidden")}
-function showEditor(){ $("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");$("previewImage").src=URL.createObjectURL(sourceFile);$("fileStats").innerHTML=`<span>${escapeHtml(sourceFile.name)}</span><span>${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}</span><span>${formatBytes(sourceFile.size)}</span>`;renderControls();setStatus("Image loaded");}
+function renderPreviewCarousel(){
+ const wrap=$("previewCarousel"), thumbs=$("previewThumbs");
+ if(!wrap||!thumbs)return;
+ if(imageFiles.length<=1){wrap.classList.add("hidden");return}
+ wrap.classList.remove("hidden");
+ $("previewCounter").textContent=`Image ${previewIndex+1} of ${imageFiles.length}`;
+ thumbs.innerHTML=imageFiles.map((file,i)=>{
+   const url=URL.createObjectURL(file);
+   return `<button type="button" class="preview-thumb ${i===previewIndex?"active":""}" data-preview-index="${i}" aria-label="Preview ${i+1}: ${escapeHtml(file.name)}"><img src="${url}" alt=""><span>${escapeHtml(file.name)}</span></button>`;
+ }).join("");
+ thumbs.querySelectorAll("[data-preview-index]").forEach(btn=>btn.addEventListener("click",()=>selectPreview(Number(btn.dataset.previewIndex))));
+ $("previewPrev").disabled=previewIndex===0;
+ $("previewNext").disabled=previewIndex===imageFiles.length-1;
+}
+function selectPreview(index){
+ if(!imageFiles.length)return;
+ previewIndex=Math.max(0,Math.min(imageFiles.length-1,index));
+ const file=imageFiles[previewIndex],url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{
+   sourceFile=file;sourceImage=img;
+   $("previewImage").src=url;
+   $("fileStats").innerHTML=`<span>${escapeHtml(file.name)}</span><span>${img.naturalWidth} × ${img.naturalHeight}</span><span>${formatBytes(file.size)}</span><span>${previewIndex+1} of ${imageFiles.length} selected</span>`;
+   renderPreviewCarousel();
+   $("downloadButton").disabled=!outputBlob;
+ };
+ img.onerror=()=>{URL.revokeObjectURL(url);setStatus(`Could not preview ${file.name}`)};
+ img.src=url;
+}
+function showEditor(){
+ $("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");
+ $("previewImage").src=URL.createObjectURL(sourceFile);
+ $("fileStats").innerHTML=`<span>${escapeHtml(sourceFile.name)}</span><span>${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}</span><span>${formatBytes(sourceFile.size)}</span>`;
+ renderPreviewCarousel();renderControls();setStatus("Image loaded");
+}
 function loadFiles(files){
  if(!files||!files.length)return;
  setStatus("Loading image…");
@@ -211,20 +334,16 @@ function loadFiles(files){
    setStatus("No image selected");
    return;
  }
+ previewIndex=0;
  sourceFile=imageFiles[0];
  const url=URL.createObjectURL(sourceFile);
  const img=new Image();
  img.onload=()=>{
-   sourceImage=img;outputBlob=null;$("downloadButton").disabled=true;
+   sourceImage=img;outputBlob=null;$("downloadButton").disabled=true;$("downloadButton").textContent="Download output";batchOutputs=[];
    showEditor();
    const count=imageFiles.length;
    $("fileStats").innerHTML+=count>1?`<span><strong>${count} images selected</strong></span>`:"";
-   if(count>1) {
-     const note=document.createElement("div");
-     note.className="notice";
-     note.textContent=`${count} images selected. The preview shows the first image. Multi-file selection is enabled; batch processing/download is not yet implemented for every tool.`;
-     $("fileStats").appendChild(note);
-   }
+   renderPreviewCarousel();
    $("fileInput").value="";
  };
  img.onerror=()=>{
@@ -237,6 +356,8 @@ function loadFiles(files){
 $("fileInput").addEventListener("click",e=>{e.stopPropagation();});
 /* Do not programmatically open the picker; the visible native input handles Android selection. */
 $("fileInput").onchange=e=>loadFiles(e.target.files);
+$("previewPrev").addEventListener("click",()=>selectPreview(previewIndex-1));
+$("previewNext").addEventListener("click",()=>selectPreview(previewIndex+1));
 $("dropZone").ondragover=e=>{e.preventDefault();$("dropZone").classList.add("dragover")};
 $("dropZone").ondragleave=()=> $("dropZone").classList.remove("dragover");
 $("dropZone").ondrop=e=>{e.preventDefault();$("dropZone").classList.remove("dragover");loadFiles(e.dataTransfer.files)};
@@ -378,9 +499,9 @@ async function processBatch(mode){
  outputBlob=outputs[0]?.blob||null;
  outputName=outputs[0]?.name||"pixeltoolkit-output.png";
  $("downloadButton").disabled=!outputBlob;
- const cards=outputs.map((o)=>{
-   const url=URL.createObjectURL(o.blob);
-   return `<div class="batch-result-item"><div><strong>${escapeHtml(o.name)}</strong><small>${o.width} × ${o.height} · ${formatBytes(o.blob.size)} (was ${formatBytes(o.original.size)})</small></div><a class="primary-button batch-download" href="${url}" download="${escapeHtml(o.name)}">Download</a></div>`;
+ $("downloadButton").textContent=outputs.length>1?"Download first result":"Download output";
+ const cards=outputs.map((o,i)=>{
+   return `<div class="batch-result-item"><div><strong>${escapeHtml(o.name)}</strong><small>${o.width} × ${o.height} · ${formatBytes(o.blob.size)} (was ${formatBytes(o.original.size)})</small></div><button type="button" class="batch-download" data-batch-download="${i}">Download this image</button></div>`;
  }).join("");
  let message=`<strong>Processed ${outputs.length} of ${files.length} images.</strong><p>Download each image individually below, or download all successful results together as a ZIP file.</p>`;
  if(outputs.length)message+=`<div class="button-row"><button id="downloadAllZip" class="primary-button" type="button">Download all as ZIP</button></div>`;
@@ -447,11 +568,23 @@ async function processImage(){
   }else{
     outputBlob=await canvasBlob(c,outType,quality);const ext=outType==="image/jpeg"?"jpg":outType==="image/webp"?"webp":"png";outputName=`pixeltoolkit-${currentTool.mode}.${ext}`;showResult(`Done. Output dimensions: ${c.width} × ${c.height}. Output size: ${formatBytes(outputBlob.size)}.`);
   }
-  $("downloadButton").disabled=false;setStatus("Done");
+  $("downloadButton").disabled=false;$("downloadButton").textContent="Download output";setStatus("Done");
  }catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}
  finally{$("processButton").disabled=false}
 }
-$("resultBox").addEventListener("click",e=>{if(e.target&&e.target.id==="downloadAllZip")downloadAllBatchZip()});
+function downloadBatchItem(index){
+ const item=batchOutputs[index];if(!item)return;
+ const url=URL.createObjectURL(item.blob),a=document.createElement("a");
+ a.href=url;a.download=item.name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+$("resultBox").addEventListener("click",e=>{
+ const target=e.target;
+ if(!target)return;
+ if(target.id==="downloadAllZip"){downloadAllBatchZip();return}
+ const idx=target.getAttribute("data-batch-download");
+ if(idx!==null)downloadBatchItem(Number(idx));
+});
 $("processButton").onclick=processImage;
 $("resetButton").onclick=()=>{outputBlob=null;$("downloadButton").disabled=true;$("resultBox").classList.add("hidden");renderControls();setStatus(sourceImage?"Image loaded":"Ready")};
 $("downloadButton").onclick=()=>{if(!outputBlob)return;const url=URL.createObjectURL(outputBlob);const a=document.createElement("a");a.href=url;a.download=outputName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
