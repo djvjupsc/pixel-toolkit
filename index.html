@@ -246,7 +246,7 @@ const CATEGORIES = [
  ["QR Code Generator","Generate QR codes with a free browser-loaded encoder.","qr"],
  ["Image to PDF","Convert the selected image to a PDF locally.","pdf"],
  ["Multiple Images to PDF","Create a multi-page PDF from selected images.","multipdf"],
- ["PDF Page to Image","PDF rendering library required; not included in this starter.","advanced"],
+ ["PDF Page to Image","Convert a selected PDF page to PNG or JPG in your browser.","pdf2img"],
  ["Download Images as ZIP","Package selected original images into a ZIP archive.","sourcezip"],
  ["Format & Metadata Inspector","Inspect image dimensions, MIME type and size.","inspect"]
  ]}
@@ -277,11 +277,12 @@ function renderGrid(category=null, query=""){
  grid.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(allTools.find(t=>t.name===b.dataset.tool)));
  renderNav();
 }
-function selectTool(t){currentTool=t;$("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
+function selectTool(t){currentTool=t; if(t.mode==="pdf2img"&&!sourceFile){$("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");document.querySelector(".preview-panel").classList.add("hidden");}else if(t.mode!=="pdf2img"){document.querySelector(".preview-panel").classList.remove("hidden");if(!sourceFile){$("editor").classList.add("hidden");$("dropZone").classList.remove("hidden");}} $("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
 function field(label,id,value,type="number",extra=""){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}" ${extra}></div>`}
 function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
 function renderControls(){let m=currentTool.mode,html="";
 if(m==="advanced"){html=`<p class="danger"><strong>Additional module required.</strong></p><p class="notice">This particular tool still needs a dedicated library or model.</p>`}
+else if(m==="pdf2img"){html=`<div class="field"><label for="pdfInput">Choose a PDF file</label><input id="pdfInput" type="file" accept="application/pdf,.pdf"><small>PDF pages are rendered on this device. Internet is needed to load PDF.js.</small></div>`+field("Page number","pdfPage",1)+selectField("Output format","pdfImageFormat",[["image/png","PNG"],["image/jpeg","JPG"]])+field("Render scale (1–3)","pdfScale",2)+`<p class="notice">Higher scale gives a sharper image but uses more phone memory.</p>`}
 else if(m==="bgremove"){html=field("Background color to remove","removeColor","#ffffff","color")+field("Color tolerance (0–180)","tolerance",45)+`<p class="notice">Best for plain backgrounds; not AI subject segmentation.</p>`}
 else if(m==="upscale"){html=selectField("Scale factor","scaleFactor",[["2","2×"],["3","3×"]])+`<p class="notice">Canvas interpolation enlarges pixels; it does not invent AI detail.</p>`}
 else if(m==="enhance"){html=field("Brightness (%)","brightness",105,"range",'min="50" max="150"')+field("Contrast (%)","contrast",110,"range",'min="50" max="180"')+field("Saturation (%)","saturation",110,"range",'min="0" max="200"')}
@@ -630,9 +631,34 @@ async function processAdvanced(mode){
  $("downloadButton").disabled=false;$("downloadButton").textContent=outputName.endsWith(".zip")?"Download ZIP":outputName.endsWith(".pdf")?"Download PDF":"Download output";setStatus("Done");
 }
 
+async function loadPdfJs(){
+ if(window.pdfjsLib)return window.pdfjsLib;
+ await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";script.onload=resolve;script.onerror=()=>reject(new Error("PDF.js could not load. Check your internet connection and try again."));document.head.appendChild(script)});
+ if(!window.pdfjsLib)throw new Error("PDF.js library did not initialize.");
+ window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ return window.pdfjsLib;
+}
+async function processPdfPageToImage(){
+ const file=$("pdfInput")?.files?.[0];if(!file)throw new Error("Choose a PDF file first.");
+ if(file.size>80*1024*1024)throw new Error("This PDF is over 80 MB. Please choose a smaller file for mobile processing.");
+ const pdfjs=await loadPdfJs(),data=new Uint8Array(await file.arrayBuffer()),pdf=await pdfjs.getDocument({data}).promise;
+ const pageNum=Math.max(1,Math.floor(Number($("pdfPage")?.value||1)));
+ if(pageNum>pdf.numPages)throw new Error(`This PDF has ${pdf.numPages} page(s). Enter a page number between 1 and ${pdf.numPages}.`);
+ const page=await pdf.getPage(pageNum),scale=Math.max(1,Math.min(3,Number($("pdfScale")?.value||2))),viewport=page.getViewport({scale});
+ if(viewport.width*viewport.height>24000000)throw new Error("This render is too large for mobile memory. Reduce Render scale to 1 or 1.5.");
+ const canvas=document.createElement("canvas");canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+ const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+ await page.render({canvasContext:ctx,viewport}).promise;
+ const type=$("pdfImageFormat")?.value||"image/png";outputBlob=await canvasBlob(canvas,type,type==="image/jpeg"?.92:undefined);
+ const ext=type==="image/jpeg"?"jpg":"png";outputName=`${file.name.replace(/\.pdf$/i,"")}-page-${pageNum}.${ext}`;
+ $("previewImage").src=canvas.toDataURL(type);$("fileStats").innerHTML=`<span>${escapeHtml(file.name)}</span><span>PDF page ${pageNum} of ${pdf.numPages}</span><span>${canvas.width} × ${canvas.height}</span><span>${formatBytes(outputBlob.size)}</span>`;
+ showResult(`Converted PDF page ${pageNum} of ${pdf.numPages} to ${ext.toUpperCase()}. Output size: ${formatBytes(outputBlob.size)}.`);
+ $("downloadButton").disabled=false;$("downloadButton").textContent="Download output";setStatus("Done");
+}
 async function processImage(){
- if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
  const m=currentTool.mode;
+ if(m==="pdf2img") {setStatus("Loading PDF…");$("processButton").disabled=true;try{await processPdfPageToImage()}catch(err){showResult("Could not convert PDF: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
+ if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
  if(m==="advanced"){showResult("This tool still needs a dedicated module and is not implemented yet.");return}
  if(["bgremove","upscale","enhance","restore","denoise","base64decode","pdf","multipdf","qr","split","sourcezip"].includes(m)){setStatus("Processing…");$("processButton").disabled=true;try{await processAdvanced(m)}catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
  setStatus("Processing…");$("processButton").disabled=true;
