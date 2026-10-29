@@ -119,6 +119,7 @@
 .force-mobile .preview-canvas img{max-height:42vh!important}
 @media(max-width:420px){.force-mobile .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 
+.zip-download-note{margin:10px 0 0;padding:10px;border-radius:10px;background:#fff7df;color:#785400;font-size:.92rem;line-height:1.45}
 </style>
 </head>
 <body>
@@ -465,15 +466,34 @@ async function downloadAllBatchZip(){
  const btn=$("downloadAllZip");
  if(btn){btn.disabled=true;btn.textContent="Preparing ZIP…"}
  try{
-  const zip=await makeStoredZip(batchOutputs.map(o=>({name:o.name,blob:o.blob})));
-  const url=URL.createObjectURL(zip),a=document.createElement("a");
-  a.href=url;a.download="pixeltoolkit-processed-images.zip";document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),3000);
-  setStatus(`ZIP ready · ${batchOutputs.length} images`);
- }catch(err){showResult("Could not create ZIP: "+(err?.message||"unknown error"))}
- finally{if(btn){btn.disabled=false;btn.textContent="Download all as ZIP"}}
+  const items=batchOutputs.filter(o=>o&&o.blob&&o.blob.size>0).map(o=>({name:o.name,blob:o.blob}));
+  if(!items.length)throw new Error("No valid processed image files are available.");
+  const zip=await makeStoredZip(items);
+  if(!zip||zip.size<22)throw new Error("The ZIP archive could not be generated.");
+  const url=URL.createObjectURL(zip);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="PixelToolkit-processed-images.zip";
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Android Chrome may consume Blob downloads asynchronously; do not revoke the URL immediately.
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+  setStatus(`ZIP download started · ${items.length} images · ${(zip.size/1024/1024).toFixed(2)} MB`);
+  const box=$("resultBox");
+  if(box){
+    const notice=document.createElement("p");
+    notice.className="zip-download-note";
+    notice.textContent="ZIP download started. If your file manager says “No files”, check that the downloaded file ends in .zip and try opening it from Downloads after the download finishes.";
+    box.appendChild(notice);
+  }
+ }catch(err){
+  showResult("Could not create ZIP: "+(err?.message||"unknown error"));
+ }finally{
+  if(btn){btn.disabled=false;btn.textContent="Download all as ZIP"}
+ }
 }
-
 async function processBatch(mode){
  const files=(imageFiles&&imageFiles.length?imageFiles:[sourceFile]).filter(Boolean);
  if(!files.length){showResult("Choose one or more images first.");return}
