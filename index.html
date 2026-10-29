@@ -7,7 +7,22 @@
 <meta name="theme-color" content="#101828">
 <title>PixelToolkit — Free Online Image Tools</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css">
+<style>
+*{box-sizing:border-box} :root{--bg:#f5f7fb;--surface:#fff;--text:#182230;--muted:#667085;--border:#e4e7ec;--primary:#3157d5;--primary2:#7048e8;--soft:#eef2ff;--green:#067647;--shadow:0 8px 30px rgba(16,24,40,.06)}body.dark{--bg:#0d1321;--surface:#151e2f;--text:#edf2fa;--muted:#aab5c6;--border:#2c394e;--soft:#202b49;--shadow:0 8px 30px rgba(0,0,0,.18)}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.topbar{height:68px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:5}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-size:21px;font-weight:800;letter-spacing:-.6px}.brand-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3157d5,#8b5cf6);color:white;font-size:23px}.accent{color:var(--primary)}.top-actions{display:flex;align-items:center;gap:14px}.privacy-pill{font-size:12px;color:var(--green);background:#ecfdf3;padding:7px 10px;border-radius:30px;font-weight:700}.icon-button{border:1px solid var(--border);background:var(--surface);color:var(--text);width:38px;height:38px;border-radius:10px}.app-shell{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1600px;margin:auto}.sidebar{padding:24px 16px;border-right:1px solid var(--border);min-height:calc(100vh - 68px);background:var(--surface)}.search-label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin:0 0 8px}.search{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none}.search:focus,input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(49,87,213,.12)}#categoryNav{margin-top:18px;display:grid;gap:5px}.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;color:var(--muted);padding:10px;border-radius:9px}.nav-item:hover,.nav-item.active{background:var(--soft);color:var(--primary);font-weight:700}.nav-icon{width:22px;text-align:center}.sidebar-note{margin-top:26px;padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--bg);font-size:12px;color:var(--muted)}.sidebar-note strong{color:var(--text)}.sidebar-note p{margin:5px 0 0}.main{min-width:0;padding:26px clamp(16px,3vw,42px) 20px}.hero{padding:25px 0 27px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--primary);margin-bottom:8px}.hero h1{font-size:clamp(32px,4vw,49px);line-height:1.09;letter-spacing:-1.8px;margin:0 0 12px}.gradient-text{background:linear-gradient(90deg,#3157d5,#9b55d8);color:transparent;background-clip:text}.hero p{color:var(--muted);max-width:600px;margin:0}.hero-chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.hero-chips span{font-size:12px;background:var(--surface);border:1px solid var(--border);padding:7px 10px;border-radius:30px}.workspace{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.workspace-head{padding:22px 24px 18px;display:flex;justify-content:space-between;gap:15px;align-items:flex-start;border-bottom:1px solid var(--border)}.workspace-head h2{font-size:22px;letter-spacing:-.5px;margin:0 0 3px}.workspace-head p{color:var(--muted);margin:0;font-size:13px}.status{background:#f2f4f7;color:#475467;border-radius:30px;padding:5px 10px;font-size:11px;font-weight:700;white-space:nowrap}.drop-zone{margin:22px;border:1.5px dashed #aab8d8;border-radius:14px;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:20px;cursor:pointer;background:linear-gradient(135deg,rgba(49,87,213,.035),rgba(139,92,246,.035))}.drop-zone.dragover{background:var(--soft);border-color:var(--primary)}.upload-icon{width:42px;height:42px;display:grid;place-items:center;background:var(--soft);color:var(--primary);border-radius:12px;font-size:27px;font-weight:700}.drop-zone strong{font-size:15px}.drop-zone span,.drop-zone small{color:var(--muted)}.drop-zone small{font-size:11px;max-width:440px}.editor{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:18px;padding:0 22px 22px}.hidden{display:none!important}.preview-panel,.settings-panel{border:1px solid var(--border);border-radius:13px;overflow:hidden;min-width:0}.preview-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px}.text-button{border:0;background:transparent;color:var(--primary);font-size:12px;font-weight:700}.preview-canvas{min-height:260px;max-height:430px;display:grid;place-items:center;padding:14px;background:repeating-conic-gradient(#f1f3f7 0% 25%,#fff 0% 50%) 50%/20px 20px}.preview-canvas img{max-width:100%;max-height:400px;object-fit:contain}.file-stats{padding:11px 14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px}.settings-panel{padding:16px}.settings-panel h3{margin:0 0 14px;font-size:15px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input,.field select{width:100%;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text)}.field small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-line{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}.button-row{display:flex;gap:8px;margin-top:18px}.primary-button,.secondary-button{border-radius:9px;padding:10px 14px;border:1px solid transparent;font-size:13px;font-weight:750}.primary-button{background:var(--primary);color:white}.primary-button:disabled{opacity:.45;cursor:not-allowed}.secondary-button{background:var(--surface);border-color:var(--border);color:var(--text)}.result-box{margin-top:13px;background:var(--soft);border-radius:9px;padding:12px;font-size:12px;overflow-wrap:anywhere}.workspace-foot{border-top:1px solid var(--border);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:14px;color:var(--muted);font-size:11px}.tool-directory{padding:35px 0}.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}.section-head h2{margin:0;font-size:25px;letter-spacing:-.7px}.count-badge{font-size:11px;background:var(--soft);color:var(--primary);padding:7px 10px;border-radius:30px}.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.tool-card{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:14px;text-align:left;color:var(--text);min-height:94px;transition:transform .15s,border-color .15s}.tool-card:hover{transform:translateY(-2px);border-color:#a8b7f5}.tool-card.selected{border-color:var(--primary);background:var(--soft)}.tool-card .card-icon{font-size:19px;display:block;margin-bottom:8px}.tool-card strong{display:block;font-size:12px;line-height:1.35}.tool-card small{display:block;color:var(--muted);font-size:10px;margin-top:5px}.tool-card .planned{color:#9a6700}.disclaimer{border:1px solid #f2d7a1;background:#fffaeb;color:#7a4b00;border-radius:12px;padding:15px;font-size:12px}.disclaimer p{margin:5px 0 0;line-height:1.6}footer{display:flex;justify-content:space-between;gap:15px;padding:24px 0 10px;color:var(--muted);font-size:11px}footer div{display:flex;gap:15px}footer a{color:var(--muted);text-decoration:none}.notice{font-size:12px;color:var(--muted);margin-top:8px}.danger{color:#b42318}@media(max-width:900px){.app-shell{grid-template-columns:1fr}.sidebar{min-height:auto;border-right:0;border-bottom:1px solid var(--border);padding:14px 16px}.sidebar-note{display:none}#categoryNav{display:flex;overflow-x:auto;padding-bottom:5px}.nav-item{white-space:nowrap;width:auto;flex-shrink:0}.main{padding:18px 14px}.editor{grid-template-columns:1fr}.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-foot{align-items:flex-start;flex-direction:column}.workspace-foot .primary-button{width:100%}.hero{padding:14px 0 22px}.hero h1{font-size:35px}.workspace-head{padding:18px}.drop-zone{margin:14px}.editor{padding:0 14px 14px}}@media(max-width:420px){.privacy-pill{display:none}.topbar{padding:0 14px}.tool-grid{gap:8px}.tool-card{padding:11px}.tool-card strong{font-size:11px}.field-row{grid-template-columns:1fr 1fr}.workspace-head h2{font-size:19px}}
+
+/* Android-friendly native file picker: visible label with a transparent native input directly over it */
+.choose-file-wrap{position:relative;display:inline-block;margin-top:10px;min-width:180px;min-height:48px}
+.choose-file-button{display:flex;align-items:center;justify-content:center;margin:0;min-width:180px;min-height:48px;position:relative;z-index:1;touch-action:manipulation}
+.file-input-overlay{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:2;cursor:pointer;touch-action:manipulation}
+.drop-zone{touch-action:manipulation}
+
+/* Reliable fallback: show the browser's real native file input on mobile */
+.choose-file-wrap,.choose-file-button,.file-input-overlay{display:none!important}
+.native-picker-wrap{width:100%;max-width:320px;margin:14px auto 6px}
+.native-file-picker{display:block!important;position:static!important;opacity:1!important;clip:auto!important;width:100%!important;height:auto!important;min-height:48px!important;margin:0!important;padding:10px!important;overflow:visible!important;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--surface)!important;color:var(--text)!important;white-space:normal!important;z-index:auto!important}
+.drop-zone{cursor:default!important}
+
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -52,11 +67,238 @@
       </div>
       <div class="workspace-foot"><span>Tip: select a tool from the left menu; the same uploaded image stays in the workspace.</span><button id="downloadButton" class="primary-button" disabled>Download output</button></div>
     </section>
-    <section class="tool-directory"><div class="section-head"><div><div class="eyebrow">TOOL DIRECTORY</div><h2>Explore all tools</h2></div><span id="toolCount" class="count-badge">60 tools planned</span></div><div id="toolGrid" class="tool-grid"></div></section>
+    <section class="tool-directory"><div class="section-head"><div><div class="eyebrow">TOOL DIRECTORY</div><h2>Explore all tools</h2></div><span id="toolCount" class="count-badge">60 tools listed</span></div><div id="toolGrid" class="tool-grid"></div></section>
     <section class="disclaimer"><strong>Feature availability notice</strong><p>This starter includes working browser-based features for common operations and a full catalogue of planned tools. AI background removal, upscaling, restoration and some document conversions may need additional models or libraries before they can be released. The app does not claim those advanced tools are implemented merely because they appear in the directory.</p></section>
     <footer><span>© <span id="year"></span> PixelToolkit · Working name; check domain and trademark availability.</span><div><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="about.html">About</a></div></footer>
   </main>
 </div>
-<script src="./app.js?v=5" defer></script>
+<script>
+const CATEGORIES = [
+ {name:"Resize & Compress",icon:"↔",tools:[
+ ["Image Resizer","Set custom width and height in pixels.","resize"],
+ ["Percentage Resizer","Resize by a percentage of original dimensions.","percent"],
+ ["Image Compressor","Adjust output quality for supported formats.","compress"],
+ ["Compress to Exact KB","Try to meet a maximum target file size.","targetkb"],
+ ["Bulk Image Resizer","Resize multiple images one by one.","bulk"],
+ ["Bulk Image Compressor","Compress multiple images one by one.","bulkcompress"],
+ ["Aspect Ratio Resizer","Resize while preserving aspect ratio.","aspect"],
+ ["Passport Photo Resizer","Choose a common pixel size for a photo.","passport"],
+ ["Signature Resizer","Resize a signature image to custom dimensions.","signature"],
+ ["Social Media Resizer","Use common social image dimensions.","social"],
+ ["Website Image Optimizer","Resize and export a web-friendly image.","webopt"],
+ ["Image Size Analyzer","Inspect image dimensions, format and file size.","inspect"]
+ ]},
+ {name:"Format Conversion",icon:"⇄",tools:[
+ ["JPG to PNG","Convert a supported image to PNG.","png"],
+ ["PNG to JPG","Convert to JPEG; transparent areas use a white background.","jpg"],
+ ["JPG to WebP","Export a WebP image where supported.","webp"],
+ ["WebP to JPG","Convert to JPEG with a white background if needed.","jpg"],
+ ["PNG to WebP","Export WebP.","webp"],
+ ["WebP to PNG","Export PNG.","png"],
+ ["HEIC to JPG","Browser support varies; unsupported files may not open.","jpg"],
+ ["AVIF Converter","Convert if your browser can decode the source.","png"],
+ ["SVG to PNG","Rasterize a selected SVG if the browser decodes it safely.","png"],
+ ["Batch Image Converter","Choose multiple files and process sequentially.","bulk"],
+ ]},
+ {name:"Crop & Edit",icon:"✎",tools:[
+ ["Image Cropper","Crop by entering target dimensions (center crop).","crop"],
+ ["Circle Image Cropper","Create a circular crop with transparent corners.","circle"],
+ ["Rotate Image","Rotate by 90-degree increments.","rotate"],
+ ["Flip Image","Flip horizontally or vertically.","flip"],
+ ["Round Corners","Round image corners using a mask.","rounded"],
+ ["Add Border","Add a solid border around the image.","border"],
+ ["Add Padding / Canvas","Add canvas padding around an image.","padding"],
+ ["Blur Image","Apply a blur effect.","blur"],
+ ["Pixelate Image","Pixelate an image for privacy or style.","pixelate"],
+ ["Brightness & Contrast","Adjust brightness and contrast.","adjust"]
+ ]},
+ {name:"Background & AI",icon:"✧",tools:[
+ ["Background Remover","Advanced segmentation model required; not included in this free starter.","advanced"],
+ ["White Background Maker","Set a white background behind transparent pixels.","whitebg"],
+ ["Background Color Changer","Change transparent background fill color.","bgcolor"],
+ ["Image Upscaler","AI upscaling model required; not included in this starter.","advanced"],
+ ["Photo Enhancer","AI enhancement model required; not included in this starter.","advanced"],
+ ["Old Photo Restoration","Restoration model required; not included in this starter.","advanced"],
+ ["Image Denoiser","Denoising model required for high-quality results.","advanced"]
+ ]},
+ {name:"Creative Tools",icon:"▣",tools:[
+ ["Text on Image","Add a text overlay to the image.","text"],
+ ["Image Watermark","Add a text watermark.","watermark"],
+ ["Logo Watermark","Add a second image as a logo overlay.","logo"],
+ ["Collage Maker","Basic side-by-side collage from multiple images.","collage"],
+ ["Photo Grid Maker","Create a grid from selected images.","collage"],
+ ["Meme Generator","Add top and bottom caption text.","meme"],
+ ["Image Splitter","Split into a grid of tiles; ZIP export is not included yet.","advanced"],
+ ["Image Overlay / Combiner","Blend a second image over the first.","logo"]
+ ]},
+ {name:"Utilities & Export",icon:"⚙",tools:[
+ ["EXIF Metadata Viewer","Read basic browser-visible image properties.","inspect"],
+ ["EXIF Metadata Remover","Re-encode supported raster images to strip most metadata.","png"],
+ ["Color Picker","Sample a color from a selected point in the preview.","color"],
+ ["Palette Extractor","Create a simple palette from dominant sampled colors.","palette"],
+ ["Base64 to Image","Decode a data URL or Base64 string into an image.","advanced"],
+ ["Image to Base64","Convert an image to a Base64 data URL.","base64"],
+ ["Favicon Generator","Export a square PNG suitable for favicon conversion.","favicon"],
+ ["QR Code Generator","A QR encoding library is needed; not included in this starter.","advanced"],
+ ["Image to PDF","PDF library required; not included in this starter.","advanced"],
+ ["Multiple Images to PDF","PDF library required; not included in this starter.","advanced"],
+ ["PDF Page to Image","PDF rendering library required; not included in this starter.","advanced"],
+ ["Download Images as ZIP","ZIP library required for multi-file archive; not included in this starter.","advanced"],
+ ["Format & Metadata Inspector","Inspect image dimensions, MIME type and size.","inspect"]
+ ]}
+];
+const allTools = CATEGORIES.flatMap(c=>c.tools.map(t=>({...{name:t[0],desc:t[1],mode:t[2],category:c.name,icon:c.icon}})));
+const $ = id => document.getElementById(id);
+let currentTool = allTools[0], sourceFile=null, sourceImage=null, outputBlob=null, outputName="pixeltoolkit-output.png", imageFiles=[];
+const nav=$("categoryNav"), grid=$("toolGrid"), search=$("toolSearch");
+if ($("toolCount")) $("toolCount").textContent = "Loading tools…";
+function formatBytes(n){if(!Number.isFinite(n))return "—";if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";return (n/1048576).toFixed(2)+" MB"}
+function setStatus(s){$("toolStatus").textContent=s}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderNav(){nav.innerHTML=CATEGORIES.map(c=>`<button class="nav-item ${currentTool.category===c.name?"active":""}" data-category="${escapeHtml(c.name)}"><span class="nav-icon">${c.icon}</span>${escapeHtml(c.name)}</button>`).join("");nav.querySelectorAll("button").forEach(b=>b.onclick=()=>{search.value="";renderGrid(b.dataset.category);});}
+function renderGrid(category=null, query=""){let items=allTools.filter(t=>(!category||t.category===category)&&(`${t.name} ${t.desc} ${t.category}`.toLowerCase().includes(query.toLowerCase())));grid.innerHTML=items.map(t=>`<button class="tool-card ${t.name===currentTool.name?"selected":""}" data-tool="${escapeHtml(t.name)}"><span class="card-icon">${t.icon}</span><strong>${escapeHtml(t.name)}</strong><small class="${t.mode==="advanced"?"planned":""}">${t.mode==="advanced"?"Advanced / dependency required":escapeHtml(t.category)}</small></button>`).join("");$("toolCount").textContent=`${allTools.length} tools in catalogue`;grid.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(allTools.find(t=>t.name===b.dataset.tool)));renderNav();}
+function selectTool(t){currentTool=t;$("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
+function field(label,id,value,type="number",extra=""){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}" ${extra}></div>`}
+function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
+function renderControls(){let m=currentTool.mode,html="";
+if(m==="advanced"){html=`<p class="danger"><strong>Not enabled in this starter.</strong></p><p class="notice">This catalogue entry needs an additional tested library/model or a dedicated implementation. It will not pretend to process the image until that module is added.</p>`}
+else if(["resize","aspect","passport","signature","social","webopt","percent"].includes(m)){let w=sourceImage?.naturalWidth||800,h=sourceImage?.naturalHeight||600;if(m==="passport"){w=600;h=800}if(m==="signature"){w=600;h=200}if(m==="social"){w=1080;h=1080}html=field("Width (px)","width",w)+field("Height (px)","height",h)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label>`+(m==="percent"?field("Scale (%)","scale",50):"")}
+else if(["compress","bulkcompress"].includes(m)){html=field("Quality (%)","quality",80,"range",'min="10" max="100"')+`<div class="notice">JPEG/WebP quality setting. PNG compression is lossless and may not respond to this control.</div>`}
+else if(m==="targetkb"){html=field("Maximum target size (KB)","targetKB",100)+field("Maximum width (px, optional)","width",0)+`<div class="notice">The tool will try several quality levels. If needed, it will reduce dimensions. Some targets are not achievable without visible quality loss.</div>`}
+else if(m==="crop"){html=field("Crop width (px)","width",Math.floor((sourceImage?.naturalWidth||800)*.8))+field("Crop height (px)","height",Math.floor((sourceImage?.naturalHeight||600)*.8))}
+else if(m==="circle"){html=`<p class="notice">The image will be center-cropped to a square and exported with transparent corners.</p>`}
+else if(m==="rotate"){html=selectField("Rotation", "rotation", [["90","90° clockwise"],["180","180°"],["270","270° clockwise"]])}
+else if(m==="flip"){html=selectField("Flip direction","flipDirection",[["horizontal","Horizontal"],["vertical","Vertical"]])}
+else if(["rounded","border","padding","blur","pixelate"].includes(m)){html=field(m==="rounded"?"Corner radius (px)":m==="border"?"Border width (px)":m==="padding"?"Padding (px)":m==="blur"?"Blur amount (px)":"Pixel block size (px)","amount",m==="rounded"?24:m==="border"?8:m==="padding"?20:m==="blur"?4:12)+ (["border","padding"].includes(m)?field("Color","color","#ffffff","color"):"")}
+else if(m==="adjust"){html=field("Brightness (%)","brightness",100,"range",'min="0" max="200"')+field("Contrast (%)","contrast",100,"range",'min="0" max="200"')}
+else if(["jpg","webp","png","whitebg","bgcolor","favicon"].includes(m)){html=selectField("Output format","format",m==="jpg"?[["image/jpeg","JPEG"]]:m==="webp"?[["image/webp","WebP"]]:[["image/png","PNG"],["image/jpeg","JPEG"],["image/webp","WebP"]]);if(["jpg","whitebg","bgcolor"].includes(m))html+=field("Background color","color","#ffffff","color");html+=field("Quality (%)","quality",90,"range",'min="10" max="100"')}
+else if(["text","watermark","meme"].includes(m)){html=field(m==="meme"?"Top caption":"Text","overlayText",m==="watermark"?"© Your brand":"Your text","text")+ (m==="meme"?field("Bottom caption","bottomText",""): "")+field("Font size (px)","fontSize",36)+field("Text color","textColor","#ffffff","color")+field("Background / outline color","outlineColor","#111111","color")}
+else if(m==="logo"){html=`<div class="field"><label for="logoInput">Overlay image</label><input id="logoInput" type="file" accept="image/*"></div>`+field("Overlay size (% of image width)","logoSize",20)+field("Opacity (%)","opacity",80,"range",'min="10" max="100"')}
+else if(m==="collage"){html=`<div class="field"><label for="multiInput">Choose 2–8 images</label><input id="multiInput" type="file" accept="image/*" multiple></div>`+selectField("Layout","collageLayout",[["horizontal","Side by side"],["vertical","Stack vertically"],["grid","2-column grid"]])}
+else if(m==="color"){html=`<p class="notice">Tap/click a point on the preview image to sample its pixel color.</p><div id="sampledColor" class="result-box">No color sampled yet.</div>`}
+else if(m==="palette"){html=`<p class="notice">Generates a simple sampled color palette from the selected image.</p>`}
+else if(m==="base64"){html=`<p class="notice">Creates a Base64 data URL from the selected image.</p>`}
+else if(m==="inspect"){html=`<p class="notice">Basic dimensions, MIME type and size are shown under Preview. Full EXIF fields are not exposed consistently by browsers.</p>`}
+else{html=`<p class="notice">This operation is not available for the current file or needs additional implementation.</p>`}
+$("toolControls").innerHTML=html;}
+function showResult(msg){$("resultBox").textContent=msg;$("resultBox").classList.remove("hidden")}
+function showEditor(){ $("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");$("previewImage").src=URL.createObjectURL(sourceFile);$("fileStats").innerHTML=`<span>${escapeHtml(sourceFile.name)}</span><span>${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}</span><span>${formatBytes(sourceFile.size)}</span>`;renderControls();setStatus("Image loaded");}
+function loadFiles(files){
+ if(!files||!files.length)return;
+ setStatus("Loading image…");
+ const selected=[...files];
+ const isImageFile=f=>{
+   const name=(f.name||"").toLowerCase();
+   const knownExt=/\.(jpe?g|png|webp|gif|bmp|avif|heic|heif|tif?f)$/i.test(name);
+   return (f.type&&f.type.startsWith("image/"))||knownExt;
+ };
+ imageFiles=selected.filter(isImageFile);
+ if(!imageFiles.length){
+   alert("Selected file was not recognized as an image. Please choose a JPG or PNG from Files or Gallery.");
+   setStatus("No image selected");
+   return;
+ }
+ sourceFile=imageFiles[0];
+ const url=URL.createObjectURL(sourceFile);
+ const img=new Image();
+ img.onload=()=>{
+   sourceImage=img;outputBlob=null;$("downloadButton").disabled=true;
+   showEditor();
+   const count=imageFiles.length;
+   $("fileStats").innerHTML+=count>1?`<span><strong>${count} images selected</strong></span>`:"";
+   if(count>1) {
+     const note=document.createElement("div");
+     note.className="notice";
+     note.textContent=`${count} images selected. The preview shows the first image. Multi-file selection is enabled; batch processing/download is not yet implemented for every tool.`;
+     $("fileStats").appendChild(note);
+   }
+   $("fileInput").value="";
+ };
+ img.onerror=()=>{
+   URL.revokeObjectURL(url);
+   alert("The selected file was found, but this browser could not decode it. Please try a JPG or PNG image.");
+   setStatus("Could not open image");
+ };
+ img.src=url;
+}
+$("fileInput").addEventListener("click",e=>{e.stopPropagation();});
+/* Do not programmatically open the picker; the visible native input handles Android selection. */
+$("fileInput").onchange=e=>loadFiles(e.target.files);
+$("dropZone").ondragover=e=>{e.preventDefault();$("dropZone").classList.add("dragover")};
+$("dropZone").ondragleave=()=> $("dropZone").classList.remove("dragover");
+$("dropZone").ondrop=e=>{e.preventDefault();$("dropZone").classList.remove("dragover");loadFiles(e.dataTransfer.files)};
+$("removeFile").onclick=()=>{sourceFile=null;sourceImage=null;outputBlob=null;imageFiles=[];$("editor").classList.add("hidden");$("dropZone").classList.remove("hidden");$("fileInput").value="";$("downloadButton").disabled=true;setStatus("Ready")};
+function canvasBlob(canvas,type,quality){return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("This output format is not supported by the browser.")),type,quality))}
+function drawToCanvas(){const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const x=c.getContext("2d");x.drawImage(sourceImage,0,0);return [c,x]}
+async function processOne(file,mode){const img=await createImageBitmap(file);let c=document.createElement("canvas"),x=c.getContext("2d"),w=img.width,h=img.height;c.width=w;c.height=h;x.drawImage(img,0,0);if(mode==="resize"){w=Math.max(1,parseInt($("width").value)||w);h=Math.max(1,parseInt($("height").value)||h);c.width=w;c.height=h;x=c.getContext("2d");x.drawImage(img,0,0,w,h)}return await canvasBlob(c,"image/png");}
+async function processImage(){
+ if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
+ const m=currentTool.mode;
+ if(m==="advanced"){showResult("This tool needs an additional library or model. It is listed in the catalogue but is not implemented in this starter.");return}
+ setStatus("Processing…");$("processButton").disabled=true;
+ try{
+  let c=document.createElement("canvas"),x=c.getContext("2d"),w=sourceImage.naturalWidth,h=sourceImage.naturalHeight;
+  const get=(id,def)=>{const el=$(id);return el?el.value:def};
+  const num=(id,def)=>Math.max(0,Number(get(id,def))||0);
+  let outType="image/png",quality=.9;
+  const outputFormats={jpg:"image/jpeg",webp:"image/webp",png:"image/png",whitebg:"image/png",bgcolor:"image/png",favicon:"image/png"};
+  if(outputFormats[m])outType=get("format",outputFormats[m]);
+  if(m==="jpg")outType="image/jpeg";if(m==="webp")outType="image/webp";if(m==="png")outType="image/png";
+  if(["compress","bulkcompress","targetkb"].includes(m))outType=sourceFile.type==="image/jpeg"?"image/jpeg":sourceFile.type==="image/webp"?"image/webp":"image/jpeg";
+  quality=Math.min(.99,Math.max(.1,num("quality",90)/100));
+  let sx=0,sy=0,sw=w,sh=h;
+  if(["resize","aspect","passport","signature","social","webopt","percent"].includes(m)){
+    if(m==="percent"){const scale=Math.max(1,num("scale",50))/100;w=Math.max(1,Math.round(w*scale));h=Math.max(1,Math.round(h*scale))}
+    else {let nw=Math.max(1,Math.round(num("width",w))),nh=Math.max(1,Math.round(num("height",h)));if($("keepRatio")?.checked){const ratio=w/h;if(nw/nh>ratio)nw=Math.round(nh*ratio);else nh=Math.round(nw/ratio)}w=nw;h=nh}
+  }
+  if(m==="crop"){sw=Math.min(w,Math.max(1,num("width",w)));sh=Math.min(h,Math.max(1,num("height",h)));sx=Math.floor((w-sw)/2);sy=Math.floor((h-sh)/2);w=sw;h=sh}
+  if(m==="circle"){const side=Math.min(w,h);sx=(w-side)/2;sy=(h-side)/2;sw=sh=side;w=h=side}
+  if(m==="rotate"&&["90","270"].includes(get("rotation","90"))){[w,h]=[h,w]}
+  c.width=w;c.height=h;x=c.getContext("2d");
+  if(["jpg","whitebg","bgcolor"].includes(m)){x.fillStyle=get("color","#ffffff");x.fillRect(0,0,w,h)}
+  if(m==="circle"){x.beginPath();x.arc(w/2,h/2,w/2,0,Math.PI*2);x.closePath();x.clip()}
+  if(m==="rounded"){const r=Math.min(num("amount",24),w/2,h/2);x.beginPath();x.roundRect(0,0,w,h,r);x.clip()}
+  if(m==="border"){const b=Math.min(num("amount",8),Math.min(w,h)/3);x.fillStyle=get("color","#ffffff");x.fillRect(0,0,w,h);x.drawImage(sourceImage,b,b,w-2*b,h-2*b)}
+  else if(m==="padding"){const p=num("amount",20);c.width=w+2*p;c.height=h+2*p;x=c.getContext("2d");x.fillStyle=get("color","#ffffff");x.fillRect(0,0,c.width,c.height);x.drawImage(sourceImage,p,p,w,h)}
+  else if(m==="rotate"){const r=get("rotation","90");if(r==="90"){x.translate(w,0);x.rotate(Math.PI/2)}else if(r==="180"){x.translate(w,h);x.rotate(Math.PI)}else{x.translate(0,h);x.rotate(-Math.PI/2)}x.drawImage(sourceImage,0,0)}
+  else if(m==="flip"){if(get("flipDirection","horizontal")==="horizontal"){x.translate(w,0);x.scale(-1,1)}else{x.translate(0,h);x.scale(1,-1)}x.drawImage(sourceImage,0,0)}
+  else if(m==="adjust"){x.filter=`brightness(${num("brightness",100)}%) contrast(${num("contrast",100)}%)`;x.drawImage(sourceImage,0,0,w,h);x.filter="none"}
+  else if(m==="blur"){x.filter=`blur(${Math.min(30,num("amount",4))}px)`;x.drawImage(sourceImage,0,0,w,h);x.filter="none"}
+  else if(m==="pixelate"){const block=Math.max(2,num("amount",12));const small=document.createElement("canvas");small.width=Math.max(1,Math.round(w/block));small.height=Math.max(1,Math.round(h/block));small.getContext("2d").drawImage(sourceImage,0,0,small.width,small.height);x.imageSmoothingEnabled=false;x.drawImage(small,0,0,w,h)}
+  else if(m==="text"||m==="watermark"||m==="meme"){x.drawImage(sourceImage,0,0,w,h);const fs=Math.max(10,num("fontSize",36));x.textAlign="center";x.font=`bold ${fs}px Arial`;x.lineWidth=Math.max(2,fs/8);x.strokeStyle=get("outlineColor","#111111");x.fillStyle=get("textColor","#ffffff");const text=get("overlayText","Your text");if(m==="meme"){x.textTransform="uppercase";x.strokeText(text.toUpperCase(),w/2,fs+8,w-20);x.fillText(text.toUpperCase(),w/2,fs+8,w-20);const bt=get("bottomText","");if(bt){x.strokeText(bt.toUpperCase(),w/2,h-14,w-20);x.fillText(bt.toUpperCase(),w/2,h-14,w-20)}}else{const y=m==="watermark"?h-20:Math.max(fs+8,h/2);x.strokeText(text,w/2,y,w-20);x.fillText(text,w/2,y,w-20)}}
+  else if(m==="logo"){const f=$("logoInput")?.files?.[0];if(!f){showResult("Choose an overlay/logo image first.");return}const logo=await createImageBitmap(f);x.drawImage(sourceImage,0,0,w,h);const lw=Math.max(1,w*num("logoSize",20)/100),lh=lw*logo.height/logo.width;x.globalAlpha=num("opacity",80)/100;x.drawImage(logo,w-lw-12,h-lh-12,lw,lh);x.globalAlpha=1}
+  else if(m==="collage"){const files=$("multiInput")?.files;if(!files||files.length<2){showResult("Choose at least two images.");return}const imgs=await Promise.all([...files].slice(0,8).map(f=>createImageBitmap(f)));const layout=get("collageLayout","horizontal");if(layout==="horizontal"){c.width=imgs.reduce((s,i)=>s+i.width,0);c.height=Math.max(...imgs.map(i=>i.height));x=c.getContext("2d");let px=0;imgs.forEach(i=>{x.drawImage(i,px,0);px+=i.width})}else if(layout==="vertical"){c.width=Math.max(...imgs.map(i=>i.width));c.height=imgs.reduce((s,i)=>s+i.height,0);x=c.getContext("2d");let py=0;imgs.forEach(i=>{x.drawImage(i,0,py);py+=i.height})}else{const cellW=Math.max(...imgs.map(i=>i.width)),cellH=Math.max(...imgs.map(i=>i.height));c.width=cellW*2;c.height=cellH*Math.ceil(imgs.length/2);x=c.getContext("2d");imgs.forEach((i,n)=>x.drawImage(i,(n%2)*cellW,Math.floor(n/2)*cellH,cellW,cellH))}}
+  else if(m==="base64"){const reader=new FileReader();reader.onload=()=>showResult(String(reader.result).slice(0,400)+"… (preview truncated; full data URL is not displayed here)");reader.readAsDataURL(sourceFile);setStatus("Done");return}
+  else if(m==="color"){showResult("Tap the image preview to sample a color.");return}
+  else if(m==="palette"){const data=x.getImageData(0,0,Math.min(w,150),Math.min(h,150)).data;const counts={};for(let i=0;i<data.length;i+=40){const key=[data[i],data[i+1],data[i+2]].map(v=>Math.round(v/32)*32).map(v=>Math.min(255,v)).join(",");counts[key]=(counts[key]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([rgb])=>{const [r,g,b]=rgb.split(",").map(Number);return `rgb(${r}, ${g}, ${b})`});showResult("Sampled palette: "+top.join(" · "));return}
+  else if(m==="inspect"){showResult(`Name: ${sourceFile.name}\nMIME: ${sourceFile.type||"unknown"}\nDimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}\nFile size: ${formatBytes(sourceFile.size)}\nEXIF fields depend on browser support.`);return}
+  else {x.drawImage(sourceImage,sx,sy,sw,sh,0,0,w,h)}
+  if(["compress","bulkcompress"].includes(m)||m==="targetkb"||["jpg","webp","png","whitebg","bgcolor","favicon"].includes(m)){
+    // Image has already been drawn. Target-KB uses iterative quality and then downscales if needed.
+  }
+  if(m==="targetkb"){
+    const target=Math.max(1,num("targetKB",100))*1024;let blob=await canvasBlob(c,outType,.92);
+    for(let q=.88;q>=.12&&blob.size>target;q-=.08)blob=await canvasBlob(c,outType,q);
+    let attempts=0;
+    while(blob.size>target&&attempts<8&&c.width>160&&c.height>160){const nc=document.createElement("canvas");nc.width=Math.round(c.width*.85);nc.height=Math.round(c.height*.85);nc.getContext("2d").drawImage(c,0,0,nc.width,nc.height);c=nc;blob=await canvasBlob(c,outType,.55);attempts++}
+    outputBlob=blob;outputName="compressed-target."+ (outType==="image/webp"?"webp":outType==="image/png"?"png":"jpg");
+    showResult(`Output: ${formatBytes(blob.size)}. Target: ${formatBytes(target)}. ${blob.size<=target?"Target achieved.":"Target could not be reached with current constraints; consider a larger limit or smaller dimensions."}`);
+  }else{
+    outputBlob=await canvasBlob(c,outType,quality);const ext=outType==="image/jpeg"?"jpg":outType==="image/webp"?"webp":"png";outputName=`pixeltoolkit-${currentTool.mode}.${ext}`;showResult(`Done. Output dimensions: ${c.width} × ${c.height}. Output size: ${formatBytes(outputBlob.size)}.`);
+  }
+  $("downloadButton").disabled=false;setStatus("Done");
+ }catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}
+ finally{$("processButton").disabled=false}
+}
+$("processButton").onclick=processImage;
+$("resetButton").onclick=()=>{outputBlob=null;$("downloadButton").disabled=true;$("resultBox").classList.add("hidden");renderControls();setStatus(sourceImage?"Image loaded":"Ready")};
+$("downloadButton").onclick=()=>{if(!outputBlob)return;const url=URL.createObjectURL(outputBlob);const a=document.createElement("a");a.href=url;a.download=outputName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
+$("previewImage").onclick=e=>{if(currentTool.mode!=="color"||!sourceImage)return;const rect=e.target.getBoundingClientRect(),x=Math.floor((e.clientX-rect.left)/rect.width*sourceImage.naturalWidth),y=Math.floor((e.clientY-rect.top)/rect.height*sourceImage.naturalHeight);const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const cx=c.getContext("2d",{willReadFrequently:true});cx.drawImage(sourceImage,0,0);const p=cx.getImageData(Math.min(c.width-1,x),Math.min(c.height-1,y),1,1).data;showResult(`RGB(${p[0]}, ${p[1]}, ${p[2]}) · HEX #${[p[0],p[1],p[2]].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase()}`)};
+search.oninput=()=>renderGrid(null,search.value);
+$("themeToggle").onclick=()=>document.body.classList.toggle("dark");
+$("year").textContent=new Date().getFullYear();
+renderNav();renderGrid();renderControls();
+
+</script>
 </body>
 </html>
