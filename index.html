@@ -217,13 +217,13 @@ const CATEGORIES = [
  ["Brightness & Contrast","Adjust brightness and contrast.","adjust"]
  ]},
  {name:"Background & AI",icon:"✧",tools:[
- ["Background Remover","Advanced segmentation model required; not included in this free starter.","advanced"],
+ ["Background Remover","Remove a plain-color background using adjustable color tolerance; not AI segmentation.","bgremove"],
  ["White Background Maker","Set a white background behind transparent pixels.","whitebg"],
  ["Background Color Changer","Change transparent background fill color.","bgcolor"],
- ["Image Upscaler","AI upscaling model required; not included in this starter.","advanced"],
- ["Photo Enhancer","AI enhancement model required; not included in this starter.","advanced"],
- ["Old Photo Restoration","Restoration model required; not included in this starter.","advanced"],
- ["Image Denoiser","Denoising model required for high-quality results.","advanced"]
+ ["Image Upscaler","Upscale 2× or 3× using browser interpolation; not AI super-resolution.","upscale"],
+ ["Photo Enhancer","Adjust brightness, contrast and saturation in-browser.","enhance"],
+ ["Old Photo Restoration","Basic tonal/color correction; not AI restoration.","restore"],
+ ["Image Denoiser","Apply lightweight browser smoothing; not AI denoising.","denoise"]
  ]},
  {name:"Creative Tools",icon:"▣",tools:[
  ["Text on Image","Add a text overlay to the image.","text"],
@@ -232,7 +232,7 @@ const CATEGORIES = [
  ["Collage Maker","Basic side-by-side collage from multiple images.","collage"],
  ["Photo Grid Maker","Create a grid from selected images.","collage"],
  ["Meme Generator","Add top and bottom caption text.","meme"],
- ["Image Splitter","Split into a grid of tiles; ZIP export is not included yet.","advanced"],
+ ["Image Splitter","Split image into tiles and download them as a ZIP.","split"],
  ["Image Overlay / Combiner","Blend a second image over the first.","logo"]
  ]},
  {name:"Utilities & Export",icon:"⚙",tools:[
@@ -240,14 +240,14 @@ const CATEGORIES = [
  ["EXIF Metadata Remover","Re-encode supported raster images to strip most metadata.","png"],
  ["Color Picker","Sample a color from a selected point in the preview.","color"],
  ["Palette Extractor","Create a simple palette from dominant sampled colors.","palette"],
- ["Base64 to Image","Decode a data URL or Base64 string into an image.","advanced"],
+ ["Base64 to Image","Paste Base64 data and download the decoded image.","base64decode"],
  ["Image to Base64","Convert an image to a Base64 data URL.","base64"],
  ["Favicon Generator","Export a square PNG suitable for favicon conversion.","favicon"],
- ["QR Code Generator","A QR encoding library is needed; not included in this starter.","advanced"],
- ["Image to PDF","PDF library required; not included in this starter.","advanced"],
- ["Multiple Images to PDF","PDF library required; not included in this starter.","advanced"],
+ ["QR Code Generator","Generate QR codes with a free browser-loaded encoder.","qr"],
+ ["Image to PDF","Convert the selected image to a PDF locally.","pdf"],
+ ["Multiple Images to PDF","Create a multi-page PDF from selected images.","multipdf"],
  ["PDF Page to Image","PDF rendering library required; not included in this starter.","advanced"],
- ["Download Images as ZIP","ZIP library required for multi-file archive; not included in this starter.","advanced"],
+ ["Download Images as ZIP","Package selected original images into a ZIP archive.","sourcezip"],
  ["Format & Metadata Inspector","Inspect image dimensions, MIME type and size.","inspect"]
  ]}
 ];
@@ -281,7 +281,18 @@ function selectTool(t){currentTool=t;$("selectedToolTitle").textContent=t.name;$
 function field(label,id,value,type="number",extra=""){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}" ${extra}></div>`}
 function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
 function renderControls(){let m=currentTool.mode,html="";
-if(m==="advanced"){html=`<p class="danger"><strong>Not enabled in this starter.</strong></p><p class="notice">This catalogue entry needs an additional tested library/model or a dedicated implementation. It will not pretend to process the image until that module is added.</p>`}
+if(m==="advanced"){html=`<p class="danger"><strong>Additional module required.</strong></p><p class="notice">This particular tool still needs a dedicated library or model.</p>`}
+else if(m==="bgremove"){html=field("Background color to remove","removeColor","#ffffff","color")+field("Color tolerance (0–180)","tolerance",45)+`<p class="notice">Best for plain backgrounds; not AI subject segmentation.</p>`}
+else if(m==="upscale"){html=selectField("Scale factor","scaleFactor",[["2","2×"],["3","3×"]])+`<p class="notice">Canvas interpolation enlarges pixels; it does not invent AI detail.</p>`}
+else if(m==="enhance"){html=field("Brightness (%)","brightness",105,"range",'min="50" max="150"')+field("Contrast (%)","contrast",110,"range",'min="50" max="180"')+field("Saturation (%)","saturation",110,"range",'min="0" max="200"')}
+else if(m==="restore"){html=field("Brightness (%)","brightness",108,"range",'min="50" max="150"')+field("Contrast (%)","contrast",115,"range",'min="50" max="180"')+`<p class="notice">Basic tonal correction only, not AI restoration.</p>`}
+else if(m==="denoise"){html=field("Smoothing amount (px)","denoiseAmount",1,"range",'min="0" max="4"')+`<p class="notice">Smoothing may soften fine detail.</p>`}
+else if(m==="split"){html=field("Columns","splitCols",2)+field("Rows","splitRows",2)+`<p class="notice">Creates tiles and packages them in a ZIP.</p>`}
+else if(m==="base64decode"){html=`<div class="field"><label for="base64Text">Base64 data URL or Base64 text</label><textarea id="base64Text" rows="4" placeholder="data:image/png;base64,..."></textarea></div>`}
+else if(m==="qr"){html=`<div class="field"><label for="qrText">Text or URL</label><input id="qrText" value="https://pixel-toolkit.pages.dev/"></div>`+field("QR size (px)","qrSize",512)+`<p class="notice">Requires internet to load the free QR encoder library.</p>`}
+else if(m==="pdf"){html=`<p class="notice">Creates a one-page PDF from the current image.</p>`}
+else if(m==="multipdf"){html=`<p class="notice">Creates one PDF with one page per selected image.</p>`}
+else if(m==="sourcezip"){html=`<p class="notice">Packages all selected original images into one ZIP file.</p>`}
 else if(m==="bulk"){html=field("Output width (px)","width",sourceImage?.naturalWidth||800)+field("Output height (px)","height",sourceImage?.naturalHeight||600)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label><p class="notice">Select multiple images in the file picker. Each image will be processed and shown with its own download link.</p>`}
 else if(m==="bulkaspect"){html=selectField("Target aspect ratio","aspectPreset",[["1:1","Square · 1:1"],["4:3","Landscape · 4:3"],["3:2","Photo · 3:2"],["16:9","Widescreen · 16:9"],["9:16","Portrait · 9:16"],["3:4","Portrait · 3:4"],["custom","Custom ratio"]])+field("Custom ratio width","ratioW",4)+field("Custom ratio height","ratioH",3)+selectField("How to fit images","aspectFit",[["crop","Crop to exact ratio"],["fit","Fit inside canvas (add white space)"]])+field("Output width (px)","width",1080)+`<p class="notice">The selected ratio will be applied to every selected image. Each result gets a separate download link.</p>`}
 else if(["resize","aspect","passport","signature","social","webopt","percent"].includes(m)){let w=sourceImage?.naturalWidth||800,h=sourceImage?.naturalHeight||600;if(m==="passport"){w=600;h=800}if(m==="signature"){w=600;h=200}if(m==="social"){w=1080;h=1080}html=field("Width (px)","width",w)+field("Height (px)","height",h)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label>`+(m==="percent"?field("Scale (%)","scale",50):"")}
@@ -571,10 +582,59 @@ async function processBatch(mode){
  $("resultBox").classList.remove("hidden");
  setStatus(outputs.length?`Done · ${outputs.length}/${files.length} processed`:"Error · no images processed");
 }
+
+function parseHexColor(hex){const h=(hex||"#ffffff").replace("#","");return {r:parseInt(h.slice(0,2),16)||0,g:parseInt(h.slice(2,4),16)||0,b:parseInt(h.slice(4,6),16)||0}}
+function bytesAscii(s){return new TextEncoder().encode(s)}
+function bytesJoin(parts){const size=parts.reduce((n,p)=>n+p.length,0),out=new Uint8Array(size);let off=0;for(const p of parts){out.set(p,off);off+=p.length}return out}
+async function imgFromFile(file){return await new Promise((resolve,reject)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);resolve(im)};im.onerror=()=>{URL.revokeObjectURL(u);reject(new Error("Cannot decode "+(file.name||"image")))};im.src=u})}
+async function imagePdf(files){
+ const pages=[];
+ for(const f of files){const im=await imgFromFile(f),iw=im.naturalWidth,ih=im.naturalHeight,scale=Math.min(595/iw,842/ih,1),w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale)),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);const blob=await canvasBlob(c,"image/jpeg",.9);pages.push({w,h,data:new Uint8Array(await blob.arrayBuffer())})}
+ const chunks=[],offsets=[0];let len=0;const push=b=>{chunks.push(b);len+=b.length},obj=(id,b)=>{offsets[id]=len;push(bytesAscii(`${id} 0 obj\n`));push(b);push(bytesAscii("\nendobj\n"))};
+ push(bytesAscii("%PDF-1.4\n"));
+ obj(1,bytesAscii("<< /Type /Catalog /Pages 2 0 R >>"));
+ obj(2,bytesAscii(`<< /Type /Pages /Kids [${pages.map((_,i)=>`${3+i*3} 0 R`).join(" ")}] /Count ${pages.length} >>`));
+ pages.forEach((p,i)=>{const id=3+i*3,content=id+1,img=id+2,scale=Math.min(595/p.w,842/p.h),w=(p.w*scale).toFixed(2),h=(p.h*scale).toFixed(2),x=((595-p.w*scale)/2).toFixed(2),y=((842-p.h*scale)/2).toFixed(2);
+ obj(id,bytesAscii(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${img} 0 R >> >> /Contents ${content} 0 R >>`));
+ const stream=bytesAscii(`q ${w} 0 0 ${h} ${x} ${y} cm /Im0 Do Q`);obj(content,bytesJoin([bytesAscii(`<< /Length ${stream.length} >>\nstream\n`),stream,bytesAscii("\nendstream")]));
+ obj(img,bytesJoin([bytesAscii(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.data.length} >>\nstream\n`),p.data,bytesAscii("\nendstream")]));
+ });
+ const xoff=len;let xref=`xref\n0 ${offsets.length}\n0000000000 65535 f \n`;for(let i=1;i<offsets.length;i++)xref+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";xref+=`trailer\n<< /Size ${offsets.length} /Root 1 0 R >>\nstartxref\n${xoff}\n%%EOF`;push(bytesAscii(xref));return new Blob([bytesJoin(chunks)],{type:"application/pdf"})
+}
+async function loadQrEncoder(){if(window.QRCode)return;await new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js";s.onload=res;s.onerror=()=>rej(new Error("QR library could not load. Check internet."));document.head.appendChild(s)})}
+async function processAdvanced(mode){
+ if(mode==="bgremove"){
+  const col=parseHexColor($("removeColor")?.value||"#ffffff"),tol=Math.max(0,Math.min(180,Number($("tolerance")?.value)||45)),c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(sourceImage,0,0);const im=ctx.getImageData(0,0,c.width,c.height),d=im.data;
+  for(let i=0;i<d.length;i+=4){const dist=Math.hypot(d[i]-col.r,d[i+1]-col.g,d[i+2]-col.b);if(dist<tol*2.5)d[i+3]=0;else if(dist<tol*3.5)d[i+3]=Math.round(d[i+3]*(dist-tol*2.5)/Math.max(1,tol))}
+  ctx.putImageData(im,0,0);outputBlob=await canvasBlob(c,"image/png");outputName="background-removed.png";showResult("Color-based background removal finished. Best on plain backgrounds; not AI segmentation.");
+ }else if(mode==="upscale"){
+  const f=Number($("scaleFactor")?.value||2),w=sourceImage.naturalWidth*f,h=sourceImage.naturalHeight*f;if(w*h>30000000)throw new Error("Output too large for this phone; try a smaller image.");const c=document.createElement("canvas");c.width=w;c.height=h;const ctx=c.getContext("2d");ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.drawImage(sourceImage,0,0,w,h);outputBlob=await canvasBlob(c,"image/png");outputName=`upscaled-${f}x.png`;showResult(`Upscaled to ${w} × ${h} using browser interpolation, not AI super-resolution.`);
+ }else if(["enhance","restore","denoise"].includes(mode)){
+  const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const ctx=c.getContext("2d");
+  if(mode==="denoise"){ctx.filter=`blur(${Number($("denoiseAmount")?.value||1)}px)`;ctx.drawImage(sourceImage,0,0);ctx.filter="none"}
+  else{const b=Number($("brightness")?.value||105),co=Number($("contrast")?.value||110),sat=mode==="enhance"?Number($("saturation")?.value||110):100;ctx.filter=`brightness(${b}%) contrast(${co}%) saturate(${sat}%)`;ctx.drawImage(sourceImage,0,0);ctx.filter="none"}
+  outputBlob=await canvasBlob(c,"image/png");outputName=`${mode}-image.png`;showResult(mode==="restore"?"Basic tonal correction applied; not AI restoration.":mode==="denoise"?"Smoothing applied; inspect fine details.":"Enhancement applied.");
+ }else if(mode==="base64decode"){
+  let val=($("base64Text")?.value||"").trim();if(!val)throw new Error("Paste Base64 image data first.");if(!val.startsWith("data:"))val="data:image/png;base64,"+val;const r=await fetch(val);outputBlob=await r.blob();if(!outputBlob.type.startsWith("image/"))throw new Error("Base64 content is not an image.");outputName="base64-image."+(outputBlob.type.split("/")[1]||"png").replace("jpeg","jpg");showResult("Base64 image decoded.");
+ }else if(mode==="pdf"||mode==="multipdf"){
+  const files=mode==="pdf"?[sourceFile]:(imageFiles.length?imageFiles:[sourceFile]);outputBlob=await imagePdf(files);outputName=mode==="pdf"?"image.pdf":"images.pdf";showResult(`Created PDF with ${files.length} page(s).`);
+ }else if(mode==="qr"){
+  await loadQrEncoder();const txt=$("qrText")?.value||"";if(!txt.trim())throw new Error("Enter text or URL.");const c=document.createElement("canvas");await QRCode.toCanvas(c,txt,{width:Math.max(128,Math.min(2048,Number($("qrSize")?.value||512))),margin:2});outputBlob=await canvasBlob(c,"image/png");outputName="qr-code.png";showResult("QR generated. Scan it to verify the content.");
+ }else if(mode==="split"){
+  const cols=Math.max(1,Math.min(10,Number($("splitCols")?.value)||2)),rows=Math.max(1,Math.min(10,Number($("splitRows")?.value)||2)),w=sourceImage.naturalWidth,h=sourceImage.naturalHeight,items=[];
+  for(let r=0;r<rows;r++)for(let col=0;col<cols;col++){const sx=Math.floor(col*w/cols),sy=Math.floor(r*h/rows),sw=Math.floor((col+1)*w/cols)-sx,sh=Math.floor((r+1)*h/rows)-sy,c=document.createElement("canvas");c.width=sw;c.height=sh;c.getContext("2d").drawImage(sourceImage,sx,sy,sw,sh,0,0,sw,sh);items.push({name:`tile-${r+1}-${col+1}.png`,blob:await canvasBlob(c,"image/png")})}
+  outputBlob=await makeStoredZip(items);outputName="image-tiles.zip";showResult(`Created ${items.length} tiles in a ZIP.`);
+ }else if(mode==="sourcezip"){
+  const files=imageFiles.length?imageFiles:[sourceFile],items=files.map((f,i)=>({name:f.name||`image-${i+1}.jpg`,blob:f}));outputBlob=await makeStoredZip(items);outputName="selected-original-images.zip";showResult(`Packaged ${items.length} original images.`);
+ }else throw new Error("This feature still needs its dedicated module.");
+ $("downloadButton").disabled=false;$("downloadButton").textContent=outputName.endsWith(".zip")?"Download ZIP":outputName.endsWith(".pdf")?"Download PDF":"Download output";setStatus("Done");
+}
+
 async function processImage(){
  if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
  const m=currentTool.mode;
- if(m==="advanced"){showResult("This tool needs an additional library or model. It is listed in the catalogue but is not implemented in this starter.");return}
+ if(m==="advanced"){showResult("This tool still needs a dedicated module and is not implemented yet.");return}
+ if(["bgremove","upscale","enhance","restore","denoise","base64decode","pdf","multipdf","qr","split","sourcezip"].includes(m)){setStatus("Processing…");$("processButton").disabled=true;try{await processAdvanced(m)}catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
  setStatus("Processing…");$("processButton").disabled=true;
  try{
   if(["bulk","bulkaspect","bulkcompress"].includes(m)){await processBatch(m);return;}
