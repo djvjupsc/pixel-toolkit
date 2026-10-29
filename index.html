@@ -30,13 +30,12 @@
     </section>
     <section class="workspace">
       <div class="workspace-head"><div><div class="eyebrow">WORKSPACE</div><h2 id="selectedToolTitle">Image Resizer</h2><p id="selectedToolDescription">Resize an image by pixels while preserving its aspect ratio.</p></div><span id="toolStatus" class="status">Ready</span></div>
-      <div id="dropZone" class="drop-zone" tabindex="0" aria-label="Choose image file">
-        <div class="upload-icon">↑</div><strong>Choose an image from your phone</strong><span>Tap the button below, or drop an image on desktop</span>
-        <div class="choose-file-wrap">
-          <label class="primary-button choose-file-button" for="fileInput">Choose image</label>
-          <input id="fileInput" class="file-input-overlay" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic" aria-label="Choose image file">
+      <div id="dropZone" class="drop-zone" aria-label="Choose image file">
+        <div class="upload-icon">↑</div><strong>Select an image from your phone</strong><span>Tap the native file selector below</span>
+        <div class="native-picker-wrap">
+          <input id="fileInput" class="native-file-picker" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic" aria-label="Choose image file">
         </div>
-        <small>JPG, PNG and WebP recommended. Very large files may exceed your device's memory.</small>
+        <small>JPG, PNG and WebP recommended. If Android asks, choose Photos, Gallery or Files.</small>
       </div>
       <div id="editor" class="editor hidden">
         <div class="preview-panel">

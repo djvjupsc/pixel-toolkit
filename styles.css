@@ -5,3 +5,9 @@
 .choose-file-button{display:flex;align-items:center;justify-content:center;margin:0;min-width:180px;min-height:48px;position:relative;z-index:1;touch-action:manipulation}
 .file-input-overlay{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:2;cursor:pointer;touch-action:manipulation}
 .drop-zone{touch-action:manipulation}
+
+/* Reliable fallback: show the browser's real native file input on mobile */
+.choose-file-wrap,.choose-file-button,.file-input-overlay{display:none!important}
+.native-picker-wrap{width:100%;max-width:320px;margin:14px auto 6px}
+.native-file-picker{display:block!important;position:static!important;opacity:1!important;clip:auto!important;width:100%!important;height:auto!important;min-height:48px!important;margin:0!important;padding:10px!important;overflow:visible!important;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--surface)!important;color:var(--text)!important;white-space:normal!important;z-index:auto!important}
+.drop-zone{cursor:default!important}
