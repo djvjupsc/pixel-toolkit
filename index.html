@@ -242,10 +242,24 @@ $("removeFile").onclick=()=>{sourceFile=null;sourceImage=null;outputBlob=null;im
 function canvasBlob(canvas,type,quality){return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("This output format is not supported by the browser.")),type,quality))}
 function drawToCanvas(){const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const x=c.getContext("2d");x.drawImage(sourceImage,0,0);return [c,x]}
 async function processOne(file,mode){const img=await createImageBitmap(file);let c=document.createElement("canvas"),x=c.getContext("2d"),w=img.width,h=img.height;c.width=w;c.height=h;x.drawImage(img,0,0);if(mode==="resize"){w=Math.max(1,parseInt($("width").value)||w);h=Math.max(1,parseInt($("height").value)||h);c.width=w;c.height=h;x=c.getContext("2d");x.drawImage(img,0,0,w,h)}return await canvasBlob(c,"image/png");}
+async function decodeImageFile(file){
+  // Prefer createImageBitmap; fall back to the browser's native Image decoder on Android.
+  try {
+    if (window.createImageBitmap) return await createImageBitmap(file);
+  } catch (e) {
+    // Fall through to HTMLImageElement decoder.
+  }
+  return await new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{ URL.revokeObjectURL(url); resolve(img); };
+    img.onerror=()=>{ URL.revokeObjectURL(url); reject(new Error("Browser could not decode this image")); };
+    img.src=url;
+  });
+}
 async function processBatch(mode){
  const files=(imageFiles&&imageFiles.length?imageFiles:[sourceFile]).filter(Boolean);
  if(!files.length){showResult("Choose one or more images first.");return}
- if(files.length<2)showResult("Only one image is selected. You can still process it here.");
  const get=(id,def)=>{const el=$(id);return el?el.value:def};
  const num=(id,def)=>{const n=Number(get(id,def));return Number.isFinite(n)&&n>0?n:def};
  const keepRatio=$("keepRatio")?.checked??true;
@@ -256,56 +270,68 @@ async function processBatch(mode){
    else {const parts=preset.split(":").map(Number);ratio=parts[0]/parts[1]}
    if(!Number.isFinite(ratio)||ratio<=0)throw new Error("Enter a valid aspect ratio.");
  }
- const outputs=[];
+ const outputs=[], failures=[];
  for(let i=0;i<files.length;i++){
    const file=files[i];
    setStatus(`Processing ${i+1} of ${files.length}…`);
-   const bitmap=await createImageBitmap(file);
-   let sw=bitmap.width,sh=bitmap.height,sx=0,sy=0;
-   let outW=bitmap.width,outH=bitmap.height;
-   if(mode==="bulk"){
-     outW=Math.max(1,Math.round(num("width",bitmap.width)));
-     outH=Math.max(1,Math.round(num("height",bitmap.height)));
-     if(keepRatio){const r=bitmap.width/bitmap.height;if(outW/outH>r)outW=Math.max(1,Math.round(outH*r));else outH=Math.max(1,Math.round(outW/r))}
-   } else if(mode==="bulkaspect"){
-     const targetW=Math.max(1,Math.round(num("width",1080)));
-     const targetH=Math.max(1,Math.round(targetW/ratio));
-     outW=targetW;outH=targetH;
-     if(get("aspectFit","crop")==="crop"){
-       const sourceRatio=bitmap.width/bitmap.height;
-       if(sourceRatio>ratio){sh=bitmap.height;sw=Math.round(sh*ratio);sx=Math.round((bitmap.width-sw)/2)}
-       else {sw=bitmap.width;sh=Math.round(sw/ratio);sy=Math.round((bitmap.height-sh)/2)}
+   let bitmap=null;
+   try {
+     bitmap=await decodeImageFile(file);
+     const iw=bitmap.width||bitmap.naturalWidth, ih=bitmap.height||bitmap.naturalHeight;
+     if(!iw||!ih)throw new Error("Image dimensions could not be read");
+     let sw=iw,sh=ih,sx=0,sy=0,outW=iw,outH=ih;
+     if(mode==="bulk"){
+       outW=Math.max(1,Math.round(num("width",iw)));
+       outH=Math.max(1,Math.round(num("height",ih)));
+       if(keepRatio){const r=iw/ih;if(outW/outH>r)outW=Math.max(1,Math.round(outH*r));else outH=Math.max(1,Math.round(outW/r))}
+     } else if(mode==="bulkaspect"){
+       const targetW=Math.max(1,Math.round(num("width",1080)));
+       const targetH=Math.max(1,Math.round(targetW/ratio));
+       outW=targetW;outH=targetH;
+       if(get("aspectFit","crop")==="crop"){
+         const sourceRatio=iw/ih;
+         if(sourceRatio>ratio){sh=ih;sw=Math.max(1,Math.round(sh*ratio));sx=Math.round((iw-sw)/2)}
+         else {sw=iw;sh=Math.max(1,Math.round(sw/ratio));sy=Math.round((ih-sh)/2)}
+       }
      }
+     const canvas=document.createElement("canvas");canvas.width=outW;canvas.height=outH;
+     const ctx=canvas.getContext("2d");
+     if(!ctx)throw new Error("Canvas is not available in this browser");
+     if(mode==="bulkaspect"&&get("aspectFit","crop")==="fit"){
+       ctx.fillStyle="#ffffff";ctx.fillRect(0,0,outW,outH);
+       const scale=Math.min(outW/iw,outH/ih);
+       const dw=Math.round(iw*scale),dh=Math.round(ih*scale);
+       ctx.drawImage(bitmap,Math.round((outW-dw)/2),Math.round((outH-dh)/2),dw,dh);
+     } else {
+       ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,outW,outH);
+     }
+     const type=(mode==="bulkcompress")?(file.type==="image/webp"?"image/webp":"image/jpeg"):(["image/jpeg","image/webp","image/png"].includes(file.type)?file.type:"image/png");
+     const q=mode==="bulkcompress"?Math.min(.95,Math.max(.1,Number(get("quality",80))/100)):.92;
+     const blob=await canvasBlob(canvas,type,q);
+     const ext=type==="image/jpeg"?"jpg":type==="image/webp"?"webp":"png";
+     const safeName=(file.name||`image-${i+1}`).replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-").slice(0,80)||`image-${i+1}`;
+     outputs.push({name:`${safeName}-${mode}.${ext}`,blob,width:outW,height:outH,original:file});
+   } catch(err) {
+     failures.push(`${file.name||`Image ${i+1}`}: ${err?.message||"decode/process error"}`);
+   } finally {
+     if(bitmap&&typeof bitmap.close==="function")bitmap.close();
    }
-   const canvas=document.createElement("canvas");canvas.width=outW;canvas.height=outH;
-   const ctx=canvas.getContext("2d");
-   if(mode==="bulkaspect"&&get("aspectFit","crop")==="fit"){
-     ctx.fillStyle="#ffffff";ctx.fillRect(0,0,outW,outH);
-     const scale=Math.min(outW/bitmap.width,outH/bitmap.height);
-     const dw=Math.round(bitmap.width*scale),dh=Math.round(bitmap.height*scale);
-     ctx.drawImage(bitmap,Math.round((outW-dw)/2),Math.round((outH-dh)/2),dw,dh);
-   }else{
-     ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,outW,outH);
-   }
-   const type=(mode==="bulkcompress")?(file.type==="image/webp"?"image/webp":"image/jpeg"):(["image/jpeg","image/webp","image/png"].includes(file.type)?file.type:"image/png");
-   const q=mode==="bulkcompress"?Math.min(.95,Math.max(.1,Number(get("quality",80))/100)):.92;
-   const blob=await canvasBlob(canvas,type,q);
-   const ext=type==="image/jpeg"?"jpg":type==="image/webp"?"webp":"png";
-   const safeName=(file.name||`image-${i+1}`).replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-").slice(0,80)||`image-${i+1}`;
-   outputs.push({name:`${safeName}-${mode}.${ext}`,blob,width:outW,height:outH,original:file});
-   if(bitmap.close)bitmap.close();
  }
  batchOutputs=outputs;
  outputBlob=outputs[0]?.blob||null;
  outputName=outputs[0]?.name||"pixeltoolkit-output.png";
  $("downloadButton").disabled=!outputBlob;
- const cards=outputs.map((o,i)=>{
+ const cards=outputs.map((o)=>{
    const url=URL.createObjectURL(o.blob);
    return `<div class="batch-result-item"><div><strong>${escapeHtml(o.name)}</strong><small>${o.width} × ${o.height} · ${formatBytes(o.blob.size)} (was ${formatBytes(o.original.size)})</small></div><a class="primary-button batch-download" href="${url}" download="${escapeHtml(o.name)}">Download</a></div>`;
  }).join("");
- $("resultBox").innerHTML=`<strong>Done: ${outputs.length} image${outputs.length===1?"":"s"} processed.</strong><p>Tap each Download button to save its output. The main Download output button downloads the first result.</p><div class="batch-results">${cards}</div>`;
+ let message=`<strong>Processed ${outputs.length} of ${files.length} images.</strong><p>Tap each Download button to save its output. The main Download output button downloads the first result.</p>`;
+ if(failures.length)message+=`<div class="notice"><strong>${failures.length} image(s) could not be processed:</strong><br>${failures.map(escapeHtml).join("<br>")}</div>`;
+ if(cards)message+=`<div class="batch-results">${cards}</div>`;
+ if(!outputs.length)message+=`<p>No outputs were created. Try JPG or PNG files and retry.</p>`;
+ $("resultBox").innerHTML=message;
  $("resultBox").classList.remove("hidden");
- setStatus(`Done · ${outputs.length} images processed`);
+ setStatus(outputs.length?`Done · ${outputs.length}/${files.length} processed`:"Error · no images processed");
 }
 async function processImage(){
  if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
@@ -348,11 +374,7 @@ async function processImage(){
   else if(m==="base64"){const reader=new FileReader();reader.onload=()=>showResult(String(reader.result).slice(0,400)+"… (preview truncated; full data URL is not displayed here)");reader.readAsDataURL(sourceFile);setStatus("Done");return}
   else if(m==="color"){showResult("Tap the image preview to sample a color.");return}
   else if(m==="palette"){const data=x.getImageData(0,0,Math.min(w,150),Math.min(h,150)).data;const counts={};for(let i=0;i<data.length;i+=40){const key=[data[i],data[i+1],data[i+2]].map(v=>Math.round(v/32)*32).map(v=>Math.min(255,v)).join(",");counts[key]=(counts[key]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([rgb])=>{const [r,g,b]=rgb.split(",").map(Number);return `rgb(${r}, ${g}, ${b})`});showResult("Sampled palette: "+top.join(" · "));return}
-  else if(m==="inspect"){showResult(`Name: ${sourceFile.name}
-MIME: ${sourceFile.type||"unknown"}
-Dimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}
-File size: ${formatBytes(sourceFile.size)}
-EXIF fields depend on browser support.`);return}
+  else if(m==="inspect"){showResult(`Name: ${sourceFile.name}\nMIME: ${sourceFile.type||"unknown"}\nDimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}\nFile size: ${formatBytes(sourceFile.size)}\nEXIF fields depend on browser support.`);return}
   else {x.drawImage(sourceImage,sx,sy,sw,sh,0,0,w,h)}
   if(["compress","bulkcompress"].includes(m)||m==="targetkb"||["jpg","webp","png","whitebg","bgcolor","favicon"].includes(m)){
     // Image has already been drawn. Target-KB uses iterative quality and then downscales if needed.
