@@ -30,6 +30,8 @@
 .batch-download{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding:8px 12px;border-radius:8px;color:#fff;background:var(--primary);font-size:12px;font-weight:700}
 @media(max-width:600px){.batch-result-item{align-items:flex-start;flex-direction:column}.batch-download{width:100%}}
 
+.button-row .primary-button{min-height:42px}
+@media(max-width:600px){.button-row .primary-button{width:100%}}
 </style>
 </head>
 <body>
@@ -257,6 +259,61 @@ async function decodeImageFile(file){
     img.src=url;
   });
 }
+
+function crc32(bytes){
+ let crc=0xffffffff;
+ for(let i=0;i<bytes.length;i++){
+  crc^=bytes[i];
+  for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);
+ }
+ return (crc^0xffffffff)>>>0;
+}
+function u16(n){return [n&255,(n>>>8)&255]}
+function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]}
+async function makeStoredZip(items){
+ const enc=new TextEncoder(),localParts=[],centralParts=[];
+ let offset=0;
+ for(const item of items){
+  const nameBytes=enc.encode(item.name);
+  const data=new Uint8Array(await item.blob.arrayBuffer());
+  const crc=crc32(data);
+  const local=new Uint8Array([
+   0x50,0x4b,0x03,0x04, ...u16(20), ...u16(0x0800), ...u16(0),
+   ...u16(0), ...u16(0), ...u32(crc), ...u32(data.length), ...u32(data.length),
+   ...u16(nameBytes.length), ...u16(0), ...nameBytes
+  ]);
+  localParts.push(local,data);
+  const central=new Uint8Array([
+   0x50,0x4b,0x01,0x02, ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0),
+   ...u16(0), ...u16(0), ...u32(crc), ...u32(data.length), ...u32(data.length),
+   ...u16(nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0),
+   ...u32(0), ...u32(offset), ...nameBytes
+  ]);
+  centralParts.push(central);
+  offset+=local.length+data.length;
+ }
+ const centralSize=centralParts.reduce((n,p)=>n+p.length,0);
+ const end=new Uint8Array([
+  0x50,0x4b,0x05,0x06, ...u16(0), ...u16(0),
+  ...u16(items.length), ...u16(items.length),
+  ...u32(centralSize), ...u32(offset), ...u16(0)
+ ]);
+ return new Blob([...localParts,...centralParts,end],{type:"application/zip"});
+}
+async function downloadAllBatchZip(){
+ if(!batchOutputs||!batchOutputs.length){showResult("Process images first, then download the ZIP.");return}
+ const btn=$("downloadAllZip");
+ if(btn){btn.disabled=true;btn.textContent="Preparing ZIP…"}
+ try{
+  const zip=await makeStoredZip(batchOutputs.map(o=>({name:o.name,blob:o.blob})));
+  const url=URL.createObjectURL(zip),a=document.createElement("a");
+  a.href=url;a.download="pixeltoolkit-processed-images.zip";document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  setStatus(`ZIP ready · ${batchOutputs.length} images`);
+ }catch(err){showResult("Could not create ZIP: "+(err?.message||"unknown error"))}
+ finally{if(btn){btn.disabled=false;btn.textContent="Download all as ZIP"}}
+}
+
 async function processBatch(mode){
  const files=(imageFiles&&imageFiles.length?imageFiles:[sourceFile]).filter(Boolean);
  if(!files.length){showResult("Choose one or more images first.");return}
@@ -325,7 +382,8 @@ async function processBatch(mode){
    const url=URL.createObjectURL(o.blob);
    return `<div class="batch-result-item"><div><strong>${escapeHtml(o.name)}</strong><small>${o.width} × ${o.height} · ${formatBytes(o.blob.size)} (was ${formatBytes(o.original.size)})</small></div><a class="primary-button batch-download" href="${url}" download="${escapeHtml(o.name)}">Download</a></div>`;
  }).join("");
- let message=`<strong>Processed ${outputs.length} of ${files.length} images.</strong><p>Tap each Download button to save its output. The main Download output button downloads the first result.</p>`;
+ let message=`<strong>Processed ${outputs.length} of ${files.length} images.</strong><p>Download each image individually below, or download all successful results together as a ZIP file.</p>`;
+ if(outputs.length)message+=`<div class="button-row"><button id="downloadAllZip" class="primary-button" type="button">Download all as ZIP</button></div>`;
  if(failures.length)message+=`<div class="notice"><strong>${failures.length} image(s) could not be processed:</strong><br>${failures.map(escapeHtml).join("<br>")}</div>`;
  if(cards)message+=`<div class="batch-results">${cards}</div>`;
  if(!outputs.length)message+=`<p>No outputs were created. Try JPG or PNG files and retry.</p>`;
@@ -393,6 +451,7 @@ async function processImage(){
  }catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}
  finally{$("processButton").disabled=false}
 }
+$("resultBox").addEventListener("click",e=>{if(e.target&&e.target.id==="downloadAllZip")downloadAllBatchZip()});
 $("processButton").onclick=processImage;
 $("resetButton").onclick=()=>{outputBlob=null;$("downloadButton").disabled=true;$("resultBox").classList.add("hidden");renderControls();setStatus(sourceImage?"Image loaded":"Ready")};
 $("downloadButton").onclick=()=>{if(!outputBlob)return;const url=URL.createObjectURL(outputBlob);const a=document.createElement("a");a.href=url;a.download=outputName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
