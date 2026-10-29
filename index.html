@@ -30,9 +30,11 @@
     </section>
     <section class="workspace">
       <div class="workspace-head"><div><div class="eyebrow">WORKSPACE</div><h2 id="selectedToolTitle">Image Resizer</h2><p id="selectedToolDescription">Resize an image by pixels while preserving its aspect ratio.</p></div><span id="toolStatus" class="status">Ready</span></div>
-      <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Choose image file">
-        <input id="fileInput" type="file" accept="image/*" hidden>
-        <div class="upload-icon">↑</div><strong>Drop an image here</strong><span>or tap to choose a file from your phone</span><small>Use a copy of sensitive images. Very large files may exceed your device's memory.</small>
+      <div id="dropZone" class="drop-zone" tabindex="0" aria-label="Choose image file">
+        <input id="fileInput" class="file-input-native" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic">
+        <div class="upload-icon">↑</div><strong>Choose an image from your phone</strong><span>Tap the button below, or drop an image on desktop</span>
+        <button id="chooseFileButton" class="primary-button choose-file-button" type="button">Choose image</button>
+        <small>JPG, PNG and WebP recommended. Very large files may exceed your device's memory.</small>
       </div>
       <div id="editor" class="editor hidden">
         <div class="preview-panel">
