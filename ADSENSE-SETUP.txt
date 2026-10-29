@@ -1,15 +1,37 @@
-PIXELTOOLKIT — ADSENSE PREPARATION NOTES
+PIXELTOOLKIT — ADSENSE & SEO DEPLOY GUIDE
 
-This site does not include an AdSense publisher ID or ad code. Do not paste placeholder ad code into the website.
+This is a consolidated update for https://pixel-toolkit.pages.dev/ . It includes the existing image-tool app plus legal/info pages and basic crawl files.
 
-Before applying:
-1. Test the actual functionality of every promoted tool on Android Chrome. Clearly label or remove tools that are not working.
-2. Review all pages and make sure the privacy notice matches the real data flow and any third-party scripts.
-3. Publish useful original guides and instructions, not just a tool list.
-4. Add/verify About, Privacy, Terms and Contact pages.
-5. Apply at https://adsense.google.com/start/ using the Google account that will own the publisher account.
-6. Follow the current AdSense dashboard instructions to verify site ownership and connect the site. Only add the exact code Google provides.
-7. Do not click your own ads, encourage clicks, or place ads where they may be mistaken for download/process buttons.
-8. If Google approves the site, configure ads and consent options according to applicable requirements. If the site is rejected, use the reason shown in AdSense to improve it before requesting another review.
+FILES TO UPLOAD TO THE ROOT OF THE EXISTING GITHUB REPOSITORY
+- index.html (replace existing index.html with this file)
+- about.html
+- privacy.html
+- terms.html
+- contact.html
+- robots.txt
+- sitemap.xml
+- favicon.svg
+- README.md (instructions only; optional)
+- ADSENSE-SETUP.txt (instructions only; optional)
 
-Important: These files improve basic readiness but do not guarantee AdSense approval. Update legal pages whenever actual data collection, analytics, ads or external APIs change.
+ANDROID STEPS
+1. Extract this ZIP in Files by Google.
+2. Open https://github.com/dvjupsc/pixel-toolkit and upload/update the listed website files in the repository ROOT, not a subfolder.
+3. Commit changes and wait for Cloudflare Pages deployment to succeed.
+4. Test homepage, /robots.txt, /sitemap.xml, /about.html, /privacy.html, /terms.html and /contact.html.
+5. In Google Search Console, submit sitemap.xml.
+6. In AdSense, follow the status and setup instructions shown in your own account.
+
+ADSENSE SAFETY
+- This package includes the supplied google-adsense-account meta tag and Google Search Console verification tag in index.html.
+- Meta tags alone do not enable ads or mean approval has been granted.
+- Do not paste arbitrary ad code. After approval, use the exact code/Auto ads instructions supplied by AdSense.
+- Keep ads visually separate from image upload, Process, Download, navigation and tool controls. Never encourage clicks or click your own ads.
+- Do not add ad placeholders that look like actual ads.
+- Update Privacy Policy to accurately describe advertising/cookies/consent after ads are actually enabled.
+- If AdSense asks for ads.txt, follow its exact instructions and publisher record.
+
+IMPORTANT
+- This ZIP does not guarantee AdSense approval, indexing or earnings.
+- The current canonical URLs and sitemap use the pages.dev URL. If you later add a custom domain, update canonical URLs, sitemap and Search Console property to the final domain.
+- Test tool functions on Android after deploying. Static syntax checks do not replace live device testing.
