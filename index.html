@@ -101,6 +101,24 @@
   footer,footer div{flex-wrap:wrap}
 }
 
+
+/* Apply mobile layout even when Android Chrome has Desktop site enabled. */
+.force-mobile .app-shell{display:block!important;width:100%!important;max-width:100%!important;grid-template-columns:minmax(0,1fr)!important}
+.force-mobile .sidebar{position:relative!important;min-height:0!important;border-right:0!important;border-bottom:1px solid var(--border)!important;padding:10px 12px!important}
+.force-mobile #categoryNav{display:flex!important;gap:7px!important;overflow-x:auto!important;overscroll-behavior-x:contain!important}
+.force-mobile .nav-item{flex:0 0 auto!important;width:auto!important;white-space:nowrap!important}
+.force-mobile .sidebar-note{display:none!important}
+.force-mobile .main{padding:12px 10px 20px!important}
+.force-mobile .editor{grid-template-columns:minmax(0,1fr)!important;padding:0 10px 12px!important;gap:12px!important}
+.force-mobile .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.force-mobile .tool-card{min-width:0!important;padding:10px!important}
+.force-mobile .tool-card strong{font-size:11px!important;overflow-wrap:anywhere!important}
+.force-mobile .workspace-foot{align-items:stretch!important;flex-direction:column!important}
+.force-mobile .workspace-foot .primary-button{width:100%!important}
+.force-mobile .preview-canvas{min-height:180px!important;padding:8px!important}
+.force-mobile .preview-canvas img{max-height:42vh!important}
+@media(max-width:420px){.force-mobile .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
 </style>
 </head>
 <body>
@@ -366,19 +384,40 @@ function canvasBlob(canvas,type,quality){return new Promise((resolve,reject)=>ca
 function drawToCanvas(){const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const x=c.getContext("2d");x.drawImage(sourceImage,0,0);return [c,x]}
 async function processOne(file,mode){const img=await createImageBitmap(file);let c=document.createElement("canvas"),x=c.getContext("2d"),w=img.width,h=img.height;c.width=w;c.height=h;x.drawImage(img,0,0);if(mode==="resize"){w=Math.max(1,parseInt($("width").value)||w);h=Math.max(1,parseInt($("height").value)||h);c.width=w;c.height=h;x=c.getContext("2d");x.drawImage(img,0,0,w,h)}return await canvasBlob(c,"image/png");}
 async function decodeImageFile(file){
-  // Prefer createImageBitmap; fall back to the browser's native Image decoder on Android.
-  try {
-    if (window.createImageBitmap) return await createImageBitmap(file);
-  } catch (e) {
-    // Fall through to HTMLImageElement decoder.
-  }
-  return await new Promise((resolve,reject)=>{
-    const url=URL.createObjectURL(file);
+  // Reuse the already-decoded current preview whenever possible.
+  if(file===sourceFile && sourceImage && sourceImage.complete && sourceImage.naturalWidth>0) return sourceImage;
+
+  // Android's createImageBitmap can fail on some valid picker-provided files.
+  // Use the same HTMLImageElement decoding path as the visible preview first.
+  const loadImageUrl = (url, revokeAfterLoad=false) => new Promise((resolve,reject)=>{
     const img=new Image();
-    img.onload=()=>{ URL.revokeObjectURL(url); resolve(img); };
-    img.onerror=()=>{ URL.revokeObjectURL(url); reject(new Error("Browser could not decode this image")); };
+    img.onload=()=>{ if(revokeAfterLoad) URL.revokeObjectURL(url); resolve(img); };
+    img.onerror=()=>{ if(revokeAfterLoad) URL.revokeObjectURL(url); reject(new Error('Browser could not decode image using its native image decoder')); };
     img.src=url;
   });
+
+  let objectUrl='';
+  try {
+    objectUrl=URL.createObjectURL(file);
+    return await loadImageUrl(objectUrl,true);
+  } catch (objectUrlError) {
+    // Some Android document providers behave better with a data URL than a blob URL.
+    try {
+      const dataUrl=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result));
+        reader.onerror=()=>reject(new Error('Could not read selected image file'));
+        reader.readAsDataURL(file);
+      });
+      return await loadImageUrl(dataUrl,false);
+    } catch (dataUrlError) {
+      // Final fallback: native bitmap decoder, where available.
+      if(window.createImageBitmap){
+        try { return await createImageBitmap(file); } catch(bitmapError) {}
+      }
+      throw new Error('Could not decode this image. Try saving it as a standard JPG or PNG and select it again.');
+    }
+  }
 }
 
 function crc32(bytes){
@@ -592,6 +631,7 @@ $("previewImage").onclick=e=>{if(currentTool.mode!=="color"||!sourceImage)return
 search.oninput=()=>renderGrid(null,search.value);
 $("themeToggle").onclick=()=>document.body.classList.toggle("dark");
 $("year").textContent=new Date().getFullYear();
+try{if((window.screen&&window.screen.width<=600)||/Android|iPhone|iPod|Mobile/i.test(navigator.userAgent))document.documentElement.classList.add("force-mobile")}catch(e){}
 renderNav();renderGrid();renderControls();
 
 </script>
