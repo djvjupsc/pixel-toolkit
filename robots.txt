@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://YOUR-PROJECT.pages.dev/sitemap.xml
+Disallow: /private/
+Sitemap: https://pixel-toolkit.pages.dev/sitemap.xml

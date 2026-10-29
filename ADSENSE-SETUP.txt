@@ -1,0 +1,15 @@
+PIXELTOOLKIT — ADSENSE PREPARATION NOTES
+
+This site does not include an AdSense publisher ID or ad code. Do not paste placeholder ad code into the website.
+
+Before applying:
+1. Test the actual functionality of every promoted tool on Android Chrome. Clearly label or remove tools that are not working.
+2. Review all pages and make sure the privacy notice matches the real data flow and any third-party scripts.
+3. Publish useful original guides and instructions, not just a tool list.
+4. Add/verify About, Privacy, Terms and Contact pages.
+5. Apply at https://adsense.google.com/start/ using the Google account that will own the publisher account.
+6. Follow the current AdSense dashboard instructions to verify site ownership and connect the site. Only add the exact code Google provides.
+7. Do not click your own ads, encourage clicks, or place ads where they may be mistaken for download/process buttons.
+8. If Google approves the site, configure ads and consent options according to applicable requirements. If the site is rejected, use the reason shown in AdSense to improve it before requesting another review.
+
+Important: These files improve basic readiness but do not guarantee AdSense approval. Update legal pages whenever actual data collection, analytics, ads or external APIs change.
