@@ -137,6 +137,16 @@
 @media(max-width:420px){.force-mobile .tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 
 .zip-download-note{margin:10px 0 0;padding:10px;border-radius:10px;background:#fff7df;color:#785400;font-size:.92rem;line-height:1.45}
+
+.site-footer{align-items:center;flex-wrap:wrap;border-top:1px solid var(--border);margin-top:18px}
+.footer-branding{display:flex;flex-direction:column;gap:5px}
+.developed-by{color:var(--muted)}
+.developed-by strong{color:var(--text);letter-spacing:.2px}
+.footer-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.social-link{display:inline-flex;align-items:center;gap:6px;color:var(--primary)!important;font-weight:750;padding:8px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface)}
+.social-link span{font-size:19px;line-height:1}
+@media(max-width:600px){.site-footer,.footer-links{align-items:flex-start}.footer-links{gap:12px}.footer-branding{width:100%}}
+
 </style>
 </head>
 <body>
@@ -197,7 +207,18 @@
     <section class="tool-directory"><div class="section-head"><div><div class="eyebrow">TOOL DIRECTORY</div><h2>Explore all tools</h2></div><span id="toolCount" class="count-badge">60 tools listed</span></div><div id="toolGrid" class="tool-grid"></div></section>
     <section class="disclaimer"><strong>Feature availability notice</strong><p>This starter includes working browser-based features for common operations and a full catalogue of planned tools. AI background removal, upscaling, restoration and some document conversions may need additional models or libraries before they can be released. The app does not claim those advanced tools are implemented merely because they appear in the directory.</p></section>
     <section class="tool-directory" aria-labelledby="how-to-use-title"><div class="eyebrow">QUICK GUIDE</div><h2 id="how-to-use-title">How to use PixelToolkit</h2><p>Choose a tool, select an image from your device, adjust the available settings and press <strong>Process image</strong>. Review the result before selecting <strong>Download output</strong>. Supported processing happens in your browser, so performance depends on your device, browser and image size.</p><h3>Popular image tasks</h3><ul><li><strong>Resize an image:</strong> enter the target dimensions and preserve the aspect ratio when needed.</li><li><strong>Compress an image:</strong> lower the output quality or use the target-size option where available.</li><li><strong>Convert an image:</strong> choose a supported output format and check the downloaded file.</li><li><strong>Prepare images on Android:</strong> use the file picker, select your image and save the processed output to your device.</li></ul><h3>Frequently asked questions</h3><details><summary>Are PixelToolkit image tools free?</summary><p>The tools currently available on the site can be used without creating an account. Some advanced catalogue entries may require additional modules and are clearly marked where applicable.</p></details><details><summary>Are my images uploaded to a server?</summary><p>Core browser-based image operations are designed to process selected files locally on your device. If a specific tool uses an external library or service, its requirements should be shown in that tool. Avoid using public devices for sensitive images.</p></details><details><summary>Why might a tool not work with my image?</summary><p>File format support and processing limits vary by browser, device memory, file size and the tool. Try a JPG or PNG copy, a smaller image, or a current version of Chrome.</p></details><details><summary>Does PixelToolkit guarantee a particular output size or quality?</summary><p>No. Output depends on the source image, selected settings and browser encoder. Always inspect the result before using it for official or professional purposes.</p></details></section>
-    <footer><span>© <span id="year"></span> PixelToolkit · Free browser-based image utilities.</span><div><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="contact.html">Contact</a></div></footer>
+    <footer class="site-footer">
+      <div class="footer-branding">
+        <span>© <span id="year"></span> PixelToolkit · Free browser-based image utilities.</span>
+        <span class="developed-by">Developed by <strong>DigvijayEconLab</strong></span>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="contact.html">Contact</a>
+        <a class="social-link" href="https://www.instagram.com/digvijayeconlab" target="_blank" rel="noopener noreferrer" aria-label="Follow DigvijayEconLab on Instagram">
+          <span aria-hidden="true">◎</span> Follow on Instagram
+        </a>
+      </div>
+    </footer>
   </main>
 </div>
 <script>
