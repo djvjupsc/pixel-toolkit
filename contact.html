@@ -1,2 +1,65 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><meta name="description" content="Contact PixelToolkit with feedback, bug reports and feature requests."><link rel="canonical" href="https://pixel-toolkit.pages.dev/contact.html"><title>Contact PixelToolkit</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><style>body{font:16px/1.7 system-ui,sans-serif;max-width:850px;margin:0 auto;padding:24px;color:#182230}a{color:#3157d5}h1{line-height:1.2}footer{margin-top:40px;border-top:1px solid #ddd;padding-top:16px}</style></head><body><p><a href="./">← PixelToolkit home</a></p><h1>Contact and Feedback</h1><p>For bug reports, accessibility issues, or feature suggestions, please use the PixelToolkit GitHub issue tracker.</p><p><a href="https://github.com/dvjupsc/pixel-toolkit/issues">Open a GitHub issue</a></p><p>Do not post private images, passwords, payment details, or other sensitive personal information in a public issue. Include your browser/device type and a brief description of the problem instead.</p><p>This page currently uses a public issue tracker rather than a contact form or published email address.</p><footer><a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <meta name="description" content="Contact PixelToolkit for support, bug reports, accessibility feedback and feature suggestions. Developed by DigvijayEconLab.">
+  <link rel="canonical" href="https://pixel-toolkit.pages.dev/contact.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Contact &amp; Feedback | PixelToolkit</title>
+  <style>
+    :root{color-scheme:light;--ink:#182230;--muted:#5c6677;--line:#e5e9f1;--brand:#405bd5;--surface:#fff;--bg:#f7f8fc}
+    *{box-sizing:border-box}html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+    .wrap{width:min(100% - 32px,760px);margin:0 auto;padding:24px 0 40px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    .brand{font-size:17px;font-weight:750;text-decoration:none;color:var(--ink)}.home{font-size:14px;font-weight:600;color:var(--brand);text-decoration:none}
+    main{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,5vw,38px);box-shadow:0 8px 28px rgba(20,35,70,.05)}
+    h1{font-size:clamp(28px,5vw,38px);line-height:1.15;letter-spacing:-1px;margin:0 0 12px;font-weight:750}
+    .intro{font-size:17px;color:var(--muted);margin:0 0 24px;max-width:60ch}h2{font-size:19px;line-height:1.3;margin:24px 0 8px}
+    p{font-size:16px;line-height:1.7;margin:10px 0;color:var(--ink)}form{display:grid;gap:9px;margin:16px 0}
+    label{font-size:14px;font-weight:650;margin-top:7px}input,select,textarea{width:100%;min-height:46px;padding:11px 12px;border:1px solid #cfd6e3;border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:16px}
+    textarea{resize:vertical;min-height:130px}input:focus,select:focus,textarea:focus{outline:3px solid rgba(64,91,213,.16);border-color:var(--brand)}
+    .action{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 17px;border-radius:10px;background:var(--brand);color:white;text-decoration:none;font-size:15px;font-weight:650;border:0;cursor:pointer;font-family:inherit;margin-top:10px;width:fit-content}
+    .note{padding:14px 16px;background:#f3f5fb;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+    a{overflow-wrap:anywhere}footer{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding:22px 4px 0;color:var(--muted);font-size:13px}
+    .links{display:flex;flex-wrap:wrap;gap:8px 14px}footer a{color:var(--muted);text-decoration:none}.credit{font-weight:650;color:var(--ink)}
+    @media(max-width:420px){.wrap{width:min(100% - 24px,760px);padding-top:16px}.top{margin-bottom:18px}main{border-radius:14px}.intro{font-size:16px}footer{display:block}.links{margin-bottom:12px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top"><a class="brand" href="./">▧ PixelToolkit</a><a class="home" href="./">← Back to tools</a></header>
+    <main>
+      <h1>Contact &amp; Feedback</h1>
+      <p class="intro">Have a question, found a bug, or want to suggest a feature? Send a message to the PixelToolkit team.</p>
+      <h2>Send feedback</h2>
+      <form id="feedbackForm">
+        <label for="name">Your name</label><input id="name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Enter your name" required>
+        <label for="email">Your email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="160" placeholder="you@example.com" required>
+        <label for="topic">Feedback type</label><select id="topic" name="topic"><option>Report a bug</option><option>Suggest a feature</option><option>General question</option><option>Other feedback</option></select>
+        <label for="message">Message</label><textarea id="message" name="message" rows="6" maxlength="5000" placeholder="Tell us what happened. For bug reports, mention the tool, device and browser." required></textarea>
+        <button class="action" type="submit">Continue to send email</button>
+      </form>
+      <p class="note">Submitting opens your device's email app with your message addressed to <strong>digvijayeconlab@zohomail.in</strong>. Review the message and press Send in that app. This website does not transmit or store your message.</p>
+      <h2>Stay connected</h2>
+      <p>Follow <strong>DigvijayEconLab</strong> on Instagram for updates and announcements.</p>
+      <p><a href="https://www.instagram.com/digvijayeconlab/" target="_blank" rel="noopener noreferrer">Instagram — @digvijayeconlab</a></p>
+      <p class="note">Please do not include passwords, payment card details or other sensitive information in your message.</p>
+    </main>
+    <footer><nav class="links" aria-label="Footer links"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="./">Home</a></nav><span>© 2026 PixelToolkit · Developed by <span class="credit">DigvijayEconLab</span></span></footer>
+  </div>
+  <script>
+    document.getElementById('feedbackForm').addEventListener('submit', function(event){
+      event.preventDefault();
+      if(!this.reportValidity()) return;
+      const data = new FormData(this);
+      const subject = encodeURIComponent('[PixelToolkit] ' + data.get('topic'));
+      const body = encodeURIComponent('Name: ' + data.get('name') + '\nReply email: ' + data.get('email') + '\nFeedback type: ' + data.get('topic') + '\n\n' + data.get('message'));
+      window.location.href = 'mailto:digvijayeconlab@zohomail.in?subject=' + subject + '&body=' + body;
+    });
+  </script>
+</body>
+</html>
