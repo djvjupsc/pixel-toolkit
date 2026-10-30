@@ -188,7 +188,7 @@ html{scroll-behavior:smooth;scroll-padding-top:86px}
 <div class="app-shell">
   <aside class="sidebar">
     <label class="search-label" for="toolSearch">Find a tool</label>
-    <input id="toolSearch" class="search" placeholder="Search tools…" autocomplete="off">
+    <input id="toolSearch" class="search" type="search" placeholder="Search tools… (e.g. resize, JPG, PDF)" autocomplete="off" aria-label="Search all image tools">
     <nav id="categoryNav" aria-label="Tool categories"></nav>
     <div class="sidebar-note"><strong>Privacy first</strong><p>Core image operations run on your device. Files are not uploaded by this static app.</p></div>
   </aside>
@@ -338,19 +338,41 @@ function setStatus(s){$("toolStatus").textContent=s}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function renderNav(){nav.innerHTML=CATEGORIES.map(c=>`<button class="nav-item ${currentTool.category===c.name?"active":""}" data-category="${escapeHtml(c.name)}"><span class="nav-icon">${c.icon}</span>${escapeHtml(c.name)}</button>`).join("");nav.querySelectorAll("button").forEach(b=>b.onclick=()=>{search.value="";renderGrid(b.dataset.category);});}
 function renderGrid(category=null, query=""){
- let items=allTools.filter(t=>(!category||t.category===category)&&(`${t.name} ${t.desc} ${t.category}`.toLowerCase().includes(query.toLowerCase())));
+ const q=String(query||"").trim().toLocaleLowerCase();
+ const scoreTool=t=>{
+  if(!q)return 0;
+  const name=String(t.name||"").toLocaleLowerCase();
+  const cat=String(t.category||"").toLocaleLowerCase();
+  const desc=String(t.desc||"").toLocaleLowerCase();
+  if(name===q)return 120;
+  if(name.startsWith(q))return 110;
+  if(name.includes(q))return 100;
+  if(cat===q)return 90;
+  if(cat.includes(q))return 80;
+  if(desc.includes(q))return 30;
+  const words=q.split(/\s+/).filter(Boolean);
+  const haystack=`${name} ${cat} ${desc}`;
+  const matched=words.filter(w=>haystack.includes(w)).length;
+  return matched?20+matched:0;
+ };
+ let items=allTools.filter(t=>(!category||t.category===category)&&(!q||scoreTool(t)>0));
+ if(q)items.sort((a,b)=>scoreTool(b)-scoreTool(a)||String(a.name).localeCompare(String(b.name)));
  const card=t=>`<button class="tool-card ${t.name===currentTool.name?"selected":""}" data-tool="${escapeHtml(t.name)}"><span class="card-icon">${t.icon}</span><strong>${escapeHtml(t.name)}</strong><small class="${t.mode==="advanced"?"planned":""}">${t.mode==="advanced"?"Advanced / dependency required":escapeHtml(t.category)}</small></button>`;
  let markup="";
- if(!category&&!query){
+ if(!category&&!q){
   CATEGORIES.forEach(c=>{
    const group=items.filter(t=>t.category===c.name);
    if(!group.length)return;
    markup+=`<div class="tool-group-heading"><strong>${escapeHtml(c.icon)} ${escapeHtml(c.name)}</strong><span>${group.length} tools</span></div>`;
    markup+=group.map(card).join("");
   });
- }else markup=items.map(card).join("");
+ }else if(items.length){
+  markup=items.map(card).join("");
+ }else{
+  markup=`<div class="empty-search" role="status" style="grid-column:1/-1;padding:24px;text-align:center;border:1px dashed var(--line);border-radius:16px;color:var(--muted)"><strong>No tools found</strong><p>Try another keyword, such as resize, JPG, PNG, crop or PDF.</p></div>`;
+ }
  grid.innerHTML=markup;
- $("toolCount").textContent=`${allTools.length} tools in catalogue`;
+ $("toolCount").textContent=q?`${items.length} matching ${items.length===1?"tool":"tools"}`:`${allTools.length} tools in catalogue`;
  grid.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>selectTool(allTools.find(t=>t.name===b.dataset.tool)));
  renderNav();
 }
