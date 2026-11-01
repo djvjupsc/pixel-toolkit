@@ -1055,12 +1055,39 @@ async function processImage(){
     // Image has already been drawn. Target-KB uses iterative quality and then downscales if needed.
   }
   if(m==="targetkb"){
-    const target=Math.max(1,num("targetKB",100))*1024;let blob=await canvasBlob(c,outType,.92);
-    for(let q=.88;q>=.12&&blob.size>target;q-=.08)blob=await canvasBlob(c,outType,q);
-    let attempts=0;
-    while(blob.size>target&&attempts<8&&c.width>160&&c.height>160){const nc=document.createElement("canvas");nc.width=Math.round(c.width*.85);nc.height=Math.round(c.height*.85);nc.getContext("2d").drawImage(c,0,0,nc.width,nc.height);c=nc;blob=await canvasBlob(c,outType,.55);attempts++}
-    outputBlob=blob;outputName="compressed-target."+ (outType==="image/webp"?"webp":outType==="image/png"?"png":"jpg");
-    showResult(`Output: ${formatBytes(blob.size)}. Target: ${formatBytes(target)}. ${blob.size<=target?"Target achieved.":"Target could not be reached with current constraints; consider a larger limit or smaller dimensions."}`);
+    const target=Math.max(1,num("targetKB",100))*1024;
+    const minDimension=64, maxDimension=12000;
+    if(c.width>maxDimension||c.height>maxDimension)throw new Error("Image dimensions are too large for reliable compression. Resize the image first.");
+    let working=c, blob=await canvasBlob(working,outType,.92), qualityUsed=.92, scaleAttempts=0;
+    // First search the full useful lossy-quality range. Canvas PNG ignores quality,
+    // so the source is deliberately encoded as JPEG for this target-size tool.
+    for(let q=.88;q>=.08&&blob.size>target;q-=.04){
+      const candidate=await canvasBlob(working,outType,q);
+      if(candidate.size<blob.size){blob=candidate;qualityUsed=q;}
+    }
+    // If quality alone is insufficient, reduce dimensions gradually and retry
+    // at a moderate quality. Keep the best (smallest) candidate at every step.
+    while(blob.size>target&&scaleAttempts<24&&working.width>minDimension&&working.height>minDimension){
+      const ratio=Math.max(.70,Math.min(.92,Math.sqrt(target/blob.size)*.94));
+      const nw=Math.max(minDimension,Math.floor(working.width*ratio));
+      const nh=Math.max(minDimension,Math.floor(working.height*ratio));
+      if(nw===working.width&&nh===working.height)break;
+      const next=document.createElement("canvas");next.width=nw;next.height=nh;
+      const nextCtx=next.getContext("2d");
+      if(!nextCtx)throw new Error("Unable to allocate a canvas for compression. Try a smaller image.");
+      nextCtx.fillStyle="#ffffff";nextCtx.fillRect(0,0,nw,nh);nextCtx.drawImage(working,0,0,nw,nh);
+      working=next;scaleAttempts++;
+      let best=await canvasBlob(working,outType,.82),bestQ=.82;
+      for(let q=.78;q>=.08&&best.size>target;q-=.05){
+        const candidate=await canvasBlob(working,outType,q);
+        if(candidate.size<best.size){best=candidate;bestQ=q;}
+      }
+      if(best.size<blob.size){blob=best;qualityUsed=bestQ;c=working;}
+      else if(working.width<=minDimension||working.height<=minDimension)break;
+    }
+    outputBlob=blob;outputName="compressed-target."+(outType==="image/webp"?"webp":"jpg");
+    const achieved=blob.size<=target;
+    showResult(`Output: ${formatBytes(blob.size)}. Target maximum: ${formatBytes(target)}. Output dimensions: ${working.width} × ${working.height}. ${achieved?"Target achieved.":"Target not achievable at the minimum safe dimensions. Increase the target size or reduce the source image dimensions."} Quality setting: ${Math.round(qualityUsed*100)}%.`);
   }else{
     outputBlob=await canvasBlob(c,outType,quality);const ext=outType==="image/jpeg"?"jpg":outType==="image/webp"?"webp":"png";outputName=`pixeltoolkit-${currentTool.mode}.${ext}`;showResult(`Done. Output dimensions: ${c.width} × ${c.height}. Output size: ${formatBytes(outputBlob.size)}.`);
   }
