@@ -523,7 +523,7 @@ const CATEGORIES = [
  ["HEIC to JPG","Browser support varies; unsupported files may not open.","jpg"],
  ["AVIF Converter","Convert if your browser can decode the source.","png"],
  ["SVG to PNG","Rasterize a selected SVG if the browser decodes it safely.","png"],
- ["Batch Image Converter","Choose multiple files and process sequentially.","bulk"],
+ ["Batch Image Converter","Convert multiple images to JPEG, PNG or WebP in one batch.","bulkconvert"],
  ]},
  {name:"Crop & Edit",icon:"✎",tools:[
  ["Image Cropper","Crop by entering target dimensions (center crop).","crop"],
@@ -644,6 +644,7 @@ else if(m==="pdf"){html=`<p class="notice">Creates a one-page PDF from the curre
 else if(m==="multipdf"){html=`<p class="notice">Creates one PDF with one page per selected image.</p>`}
 else if(m==="sourcezip"){html=`<p class="notice">Packages all selected original images into one ZIP file.</p>`}
 else if(m==="bulk"){html=field("Output width (px)","width",sourceImage?.naturalWidth||800)+field("Output height (px)","height",sourceImage?.naturalHeight||600)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label><p class="notice">Select multiple images in the file picker. Each image will be processed and shown with its own download link.</p>`}
+else if(m==="bulkconvert"){html=selectField("Convert all images to", "batchFormat", [["image/jpeg","JPEG"],["image/png","PNG"],["image/webp","WebP"]])+field("Quality (%)","quality",85,"range",'min="10" max="100"')+`<p class="notice">Converts every selected image to the chosen format. Transparent areas are filled white when converting to JPEG.</p>`}
 else if(m==="bulkaspect"){html=selectField("Target aspect ratio","aspectPreset",[["1:1","Square · 1:1"],["4:3","Landscape · 4:3"],["3:2","Photo · 3:2"],["16:9","Widescreen · 16:9"],["9:16","Portrait · 9:16"],["3:4","Portrait · 3:4"],["custom","Custom ratio"]])+field("Custom ratio width","ratioW",4)+field("Custom ratio height","ratioH",3)+selectField("How to fit images","aspectFit",[["crop","Crop to exact ratio"],["fit","Fit inside canvas (add white space)"]])+field("Output width (px)","width",1080)+`<p class="notice">The selected ratio will be applied to every selected image. Each result gets a separate download link.</p>`}
 else if(["resize","aspect","passport","signature","social","webopt","percent"].includes(m)){let w=sourceImage?.naturalWidth||800,h=sourceImage?.naturalHeight||600;if(m==="passport"){w=600;h=800}if(m==="signature"){w=600;h=200}if(m==="social"){w=1080;h=1080}html=field("Width (px)","width",w)+field("Height (px)","height",h)+`<label class="check-line"><input type="checkbox" id="keepRatio" checked> Preserve aspect ratio</label>`+(m==="percent"?field("Scale (%)","scale",50):"")}
 else if(["compress","bulkcompress"].includes(m)){html=field("Quality (%)","quality",80,"range",'min="10" max="100"')+`<div class="notice">JPEG/WebP quality setting. PNG compression is lossless and may not respond to this control.</div>`}
@@ -892,9 +893,11 @@ async function processBatch(mode){
          else {sw=iw;sh=Math.max(1,Math.round(sw/ratio));sy=Math.round((ih-sh)/2)}
        }
      }
+     const type=(mode==="bulkcompress")?(file.type==="image/webp"?"image/webp":"image/jpeg"):(mode==="bulkconvert")?get("batchFormat","image/jpeg"):(["image/jpeg","image/webp","image/png"].includes(file.type)?file.type:"image/png");
      const canvas=document.createElement("canvas");canvas.width=outW;canvas.height=outH;
      const ctx=canvas.getContext("2d");
      if(!ctx)throw new Error("Canvas is not available in this browser");
+     if(type==="image/jpeg"){ctx.fillStyle="#ffffff";ctx.fillRect(0,0,outW,outH)}
      if(mode==="bulkaspect"&&get("aspectFit","crop")==="fit"){
        ctx.fillStyle="#ffffff";ctx.fillRect(0,0,outW,outH);
        const scale=Math.min(outW/iw,outH/ih);
@@ -903,8 +906,7 @@ async function processBatch(mode){
      } else {
        ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,outW,outH);
      }
-     const type=(mode==="bulkcompress")?(file.type==="image/webp"?"image/webp":"image/jpeg"):(["image/jpeg","image/webp","image/png"].includes(file.type)?file.type:"image/png");
-     const q=mode==="bulkcompress"?Math.min(.95,Math.max(.1,Number(get("quality",80))/100)):.92;
+     const q=(mode==="bulkcompress"||mode==="bulkconvert")?Math.min(.95,Math.max(.1,Number(get("quality",85))/100)):.92;
      const blob=await canvasBlob(canvas,type,q);
      const ext=type==="image/jpeg"?"jpg":type==="image/webp"?"webp":"png";
      const safeName=(file.name||`image-${i+1}`).replace(/\.[^.]+$/,"").replace(/[^a-z0-9_-]+/gi,"-").slice(0,80)||`image-${i+1}`;
@@ -1012,7 +1014,7 @@ async function processImage(){
  if(["bgremove","upscale","enhance","restore","denoise","base64decode","pdf","multipdf","qr","split","sourcezip"].includes(m)){setStatus("Processing…");$("processButton").disabled=true;try{await processAdvanced(m)}catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
  setStatus("Processing…");$("processButton").disabled=true;
  try{
-  if(["bulk","bulkaspect","bulkcompress"].includes(m)){await processBatch(m);return;}
+  if(["bulk","bulkaspect","bulkcompress","bulkconvert"].includes(m)){await processBatch(m);return;}
   let c=document.createElement("canvas"),x=c.getContext("2d"),w=sourceImage.naturalWidth,h=sourceImage.naturalHeight;
   const get=(id,def)=>{const el=$(id);return el?el.value:def};
   const num=(id,def)=>Math.max(0,Number(get(id,def))||0);
@@ -1044,9 +1046,9 @@ async function processImage(){
   else if(m==="text"||m==="watermark"||m==="meme"){x.drawImage(sourceImage,0,0,w,h);const fs=Math.max(10,num("fontSize",36));x.textAlign="center";x.font=`bold ${fs}px Arial`;x.lineWidth=Math.max(2,fs/8);x.strokeStyle=get("outlineColor","#111111");x.fillStyle=get("textColor","#ffffff");const text=get("overlayText","Your text");if(m==="meme"){x.textTransform="uppercase";x.strokeText(text.toUpperCase(),w/2,fs+8,w-20);x.fillText(text.toUpperCase(),w/2,fs+8,w-20);const bt=get("bottomText","");if(bt){x.strokeText(bt.toUpperCase(),w/2,h-14,w-20);x.fillText(bt.toUpperCase(),w/2,h-14,w-20)}}else{const y=m==="watermark"?h-20:Math.max(fs+8,h/2);x.strokeText(text,w/2,y,w-20);x.fillText(text,w/2,y,w-20)}}
   else if(m==="logo"){const f=$("logoInput")?.files?.[0];if(!f){showResult("Choose an overlay/logo image first.");return}const logo=await createImageBitmap(f);x.drawImage(sourceImage,0,0,w,h);const lw=Math.max(1,w*num("logoSize",20)/100),lh=lw*logo.height/logo.width;x.globalAlpha=num("opacity",80)/100;x.drawImage(logo,w-lw-12,h-lh-12,lw,lh);x.globalAlpha=1}
   else if(m==="collage"){const files=$("multiInput")?.files;if(!files||files.length<2){showResult("Choose at least two images.");return}const imgs=await Promise.all([...files].slice(0,8).map(f=>createImageBitmap(f)));const layout=get("collageLayout","horizontal");if(layout==="horizontal"){c.width=imgs.reduce((s,i)=>s+i.width,0);c.height=Math.max(...imgs.map(i=>i.height));x=c.getContext("2d");let px=0;imgs.forEach(i=>{x.drawImage(i,px,0);px+=i.width})}else if(layout==="vertical"){c.width=Math.max(...imgs.map(i=>i.width));c.height=imgs.reduce((s,i)=>s+i.height,0);x=c.getContext("2d");let py=0;imgs.forEach(i=>{x.drawImage(i,0,py);py+=i.height})}else{const cellW=Math.max(...imgs.map(i=>i.width)),cellH=Math.max(...imgs.map(i=>i.height));c.width=cellW*2;c.height=cellH*Math.ceil(imgs.length/2);x=c.getContext("2d");imgs.forEach((i,n)=>x.drawImage(i,(n%2)*cellW,Math.floor(n/2)*cellH,cellW,cellH))}}
-  else if(m==="base64"){const reader=new FileReader();reader.onload=()=>showResult(String(reader.result).slice(0,400)+"… (preview truncated; full data URL is not displayed here)");reader.readAsDataURL(sourceFile);setStatus("Done");return}
+  else if(m==="base64"){const reader=new FileReader();reader.onload=()=>{const value=String(reader.result||"");showResult("Base64 data URL generated. Copy the complete value below.");const area=document.createElement("textarea");area.id="base64Output";area.value=value;area.rows=8;area.setAttribute("aria-label","Complete Base64 data URL");area.style.cssText="display:block;width:100%;min-height:160px;margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:12px monospace;overflow-wrap:anywhere";const btn=document.createElement("button");btn.type="button";btn.className="primary-button";btn.textContent="Copy complete Base64";btn.style.marginTop="8px";btn.onclick=async()=>{try{await navigator.clipboard.writeText(value);btn.textContent="Copied"}catch(e){area.focus();area.select();try{document.execCommand("copy");btn.textContent="Copied"}catch(_){btn.textContent="Select and copy the text"}}};$("resultBox").append(area,btn);};reader.onerror=()=>showResult("Could not read this image as Base64.");reader.readAsDataURL(sourceFile);setStatus("Done");return}
   else if(m==="color"){showResult("Tap the image preview to sample a color.");return}
-  else if(m==="palette"){const data=x.getImageData(0,0,Math.min(w,150),Math.min(h,150)).data;const counts={};for(let i=0;i<data.length;i+=40){const key=[data[i],data[i+1],data[i+2]].map(v=>Math.round(v/32)*32).map(v=>Math.min(255,v)).join(",");counts[key]=(counts[key]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([rgb])=>{const [r,g,b]=rgb.split(",").map(Number);return `rgb(${r}, ${g}, ${b})`});showResult("Sampled palette: "+top.join(" · "));return}
+  else if(m==="palette"){const sample=document.createElement("canvas");const sw=Math.min(w,180),sh=Math.max(1,Math.round(h*sw/w));sample.width=sw;sample.height=sh;const sc=sample.getContext("2d",{willReadFrequently:true});sc.drawImage(sourceImage,0,0,sw,sh);const data=sc.getImageData(0,0,sw,sh).data;const counts={};for(let i=0;i<data.length;i+=16){if(data[i+3]<32)continue;const key=[data[i],data[i+1],data[i+2]].map(v=>Math.min(255,Math.round(v/24)*24)).join(",");counts[key]=(counts[key]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);if(!top.length){showResult("No visible colors could be sampled from this image.");return}const chips=top.map(([rgb,count])=>{const [r,g,b]=rgb.split(",").map(Number);const hex="#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();return `<span style="display:inline-flex;align-items:center;gap:7px;margin:5px;padding:6px 9px;border:1px solid var(--border);border-radius:8px"><i style="display:inline-block;width:24px;height:24px;border-radius:5px;background:${hex};border:1px solid #888"></i><code>${hex}</code><small>${count}</small></span>`}).join("");$("resultBox").innerHTML=`<strong>Sampled color palette</strong><div style="display:flex;flex-wrap:wrap;margin-top:8px">${chips}</div>`;$("resultBox").classList.remove("hidden");return}
   else if(m==="inspect"){showResult(`Name: ${sourceFile.name}\nMIME: ${sourceFile.type||"unknown"}\nDimensions: ${sourceImage.naturalWidth} × ${sourceImage.naturalHeight}\nFile size: ${formatBytes(sourceFile.size)}\nEXIF fields depend on browser support.`);return}
   else {x.drawImage(sourceImage,sx,sy,sw,sh,0,0,w,h)}
   if(["compress","bulkcompress"].includes(m)||m==="targetkb"||["jpg","webp","png","whitebg","bgcolor","favicon"].includes(m)){
