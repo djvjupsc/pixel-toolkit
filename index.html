@@ -176,34 +176,17 @@ html{scroll-behavior:smooth;scroll-padding-top:86px}
 }
 
 
-
-/* Accessibility improvements: WCAG contrast and comfortable touch targets */
-:root{--muted:#526174}
-body.dark{--muted:#c1ccdc}
-.tool-card small{color:var(--muted)}
-.field small,.drop-zone span,.drop-zone small,.hero p,.workspace-head p,
-.file-stats,.notice,.sidebar-note,.workspace-foot,.developed-by{color:var(--muted)}
-details{border:1px solid var(--border);border-radius:11px;margin:10px 0;overflow:hidden;background:var(--surface)}
-details summary{
-  display:flex;align-items:center;min-height:48px;padding:12px 14px;
-  cursor:pointer;font-weight:700;line-height:1.45;color:var(--text);
-  list-style-position:inside;touch-action:manipulation
-}
-details summary::marker{color:var(--primary)}
-details summary:focus-visible{
-  outline:3px solid var(--primary);outline-offset:-3px;border-radius:8px
-}
-details[open] summary{border-bottom:1px solid var(--border);background:var(--bg)}
-details p{margin:0;padding:12px 14px;color:var(--muted);line-height:1.65}
-.tool-card{min-height:96px}
-.tool-card small{font-size:11px;line-height:1.4}
-.nav-item{min-height:44px}
-.icon-button,.menu-toggle,.carousel-arrow{min-width:44px;min-height:44px}
-@media(max-width:600px){
-  details summary{min-height:52px;padding:14px}
-  .tool-card{min-height:72px}
-}
-
+/* Accessibility audit follow-up: contrast and FAQ touch targets */
+.tool-card small{color:#475467!important}
+.tool-card .planned{color:#854d0e!important}
+body.dark .tool-card small{color:#d0d5dd!important}
+body.dark .tool-card .planned{color:#f5c26b!important}
+#guide details{margin:8px 0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+#guide details summary{display:block;min-height:52px;padding:14px 44px 14px 14px;position:relative;cursor:pointer;line-height:1.5;font-weight:700;color:var(--text);background:var(--surface);touch-action:manipulation}
+#guide details summary::after{content:"＋";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--primary)}
+#guide details[open] summary::after{content:"−"}
+#guide details summary:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
+#guide details p{padding:0 14px 14px;margin:0;color:var(--text);line-height:1.65}
 </style>
 
 <link rel="manifest" href="/manifest.webmanifest">
