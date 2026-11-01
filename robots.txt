@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://pixel-toolkit.pages.dev/sitemap.xml
+Agentmap: https://pixel-toolkit.pages.dev/.well-known/ard.json

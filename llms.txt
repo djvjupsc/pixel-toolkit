@@ -1,0 +1,47 @@
+# PixelToolkit
+
+> PixelToolkit is a browser-based image utility website by DigvijayEconLab. The site is designed for Android phones and desktop browsers. Common implemented image operations run in the user's browser.
+
+## Website
+
+- https://pixel-toolkit.pages.dev/ — Main image tools application.
+- https://pixel-toolkit.pages.dev/about.html — About PixelToolkit.
+- https://pixel-toolkit.pages.dev/contact.html — Contact information.
+- https://pixel-toolkit.pages.dev/privacy.html — Privacy information.
+- https://pixel-toolkit.pages.dev/terms.html — Terms of use.
+
+## Implemented image operations
+
+The current application includes browser-side functionality for common image tasks, including:
+
+- Image resizing and basic compression.
+- Crop, rotate, and flip.
+- Borders and padding.
+- Blur and pixelation.
+- Brightness and contrast adjustments.
+- Text overlays and watermarks.
+- Collage creation.
+- Basic image metadata inspection and color sampling.
+- Output format conversion where supported by the browser.
+
+## Important feature limitations
+
+The tool directory also contains planned or dependency-required entries. The site does not claim that every listed tool is implemented. AI background removal, AI upscaling, image restoration, some document conversions, and other advanced entries may require additional modules, models, or libraries. Browser format support and output quality vary by device, browser, source file, and selected settings.
+
+## Privacy and processing
+
+Core browser-based image operations are designed to process selected files locally on the user's device. Users should review the privacy page and the requirements shown by an individual tool before using it with sensitive material.
+
+## Usage
+
+1. Open the main website.
+2. Select an available tool.
+3. Choose an image from the device.
+4. Adjust the available settings and process the image.
+5. Review the result before downloading it.
+
+## Discovery and machine-readable resources
+
+- https://pixel-toolkit.pages.dev/robots.txt
+- https://pixel-toolkit.pages.dev/sitemap.xml
+- https://pixel-toolkit.pages.dev/.well-known/ard.json
