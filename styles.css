@@ -19,3 +19,31 @@
 .batch-result-item small{color:var(--muted);font-size:12px}
 .batch-download{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding:8px 12px;border-radius:8px;color:#fff;background:var(--primary);font-size:12px;font-weight:700}
 @media(max-width:600px){.batch-result-item{align-items:flex-start;flex-direction:column}.batch-download{width:100%}}
+
+
+/* Accessibility improvements: WCAG contrast and comfortable touch targets */
+:root{--muted:#526174}
+body.dark{--muted:#c1ccdc}
+.tool-card small{color:var(--muted)}
+.field small,.drop-zone span,.drop-zone small,.hero p,.workspace-head p,
+.file-stats,.notice,.sidebar-note,.workspace-foot,.developed-by{color:var(--muted)}
+details{border:1px solid var(--border);border-radius:11px;margin:10px 0;overflow:hidden;background:var(--surface)}
+details summary{
+  display:flex;align-items:center;min-height:48px;padding:12px 14px;
+  cursor:pointer;font-weight:700;line-height:1.45;color:var(--text);
+  list-style-position:inside;touch-action:manipulation
+}
+details summary::marker{color:var(--primary)}
+details summary:focus-visible{
+  outline:3px solid var(--primary);outline-offset:-3px;border-radius:8px
+}
+details[open] summary{border-bottom:1px solid var(--border);background:var(--bg)}
+details p{margin:0;padding:12px 14px;color:var(--muted);line-height:1.65}
+.tool-card{min-height:96px}
+.tool-card small{font-size:11px;line-height:1.4}
+.nav-item{min-height:44px}
+.icon-button,.menu-toggle,.carousel-arrow{min-width:44px;min-height:44px}
+@media(max-width:600px){
+  details summary{min-height:52px;padding:14px}
+  .tool-card{min-height:72px}
+}
