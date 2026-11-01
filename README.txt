@@ -1,15 +1,33 @@
-PixelToolkit single-file update — bulk tools
+PIXELTOOLKIT LIGHTHOUSE CI — ANDROID INSTALLATION
 
-Replace only the existing root-level index.html in the GitHub repository with this index.html.
-This page includes its CSS and JavaScript inline; do not upload it into a new folder.
-Commit the change and wait for Cloudflare Pages deployment to succeed.
+This package adds an automated Lighthouse audit workflow.
 
-Updates:
-- Bulk Image Resizer: processes all selected images and provides one download link per result.
-- Bulk Aspect Ratio Changer: applies a chosen ratio to all selected images using crop or fit-with-white-canvas.
-- Bulk Image Compressor: processes selected images with a quality setting and provides individual download links.
+WHAT IT DOES
+- Runs after pushes to main or master.
+- Can also be started manually from GitHub Actions.
+- Runs every Monday at 9:00 AM India time.
+- Waits 2 minutes after a push to allow Cloudflare Pages to deploy.
+- Audits the homepage and About, Contact, Privacy and Terms pages.
+- Saves Lighthouse HTML reports as a GitHub Actions artifact.
 
-Limits:
-- This is browser-side processing. Very large batches can exceed phone memory.
-- Individual downloads are provided; ZIP packaging is not implemented here.
-- Syntax/packaging checks do not replace real-device testing.
+INSTALL ON ANDROID
+1. Extract this ZIP using Files by Google.
+2. Open your GitHub repository: dvjupsc/pixel-toolkit.
+3. Open the .github folder, then workflows.
+4. Upload lighthouse-audit.yml into that workflows folder.
+   Final repository path must be:
+   .github/workflows/lighthouse-audit.yml
+5. Commit the new file to the main branch.
+6. Open the repository's Actions tab and select
+   "PixelToolkit Lighthouse Audit".
+7. Open the latest successful run. Scroll to Artifacts and download
+   the Lighthouse reports ZIP.
+
+NOTES
+- This audits the public production website, not an unpublished PR preview.
+- The 2-minute wait is a practical buffer, not a guarantee that every
+  Cloudflare deployment has finished. If a run tests an old deployment,
+  rerun it manually after Cloudflare Pages shows the latest deployment
+  as successful.
+- Lighthouse scores can vary between runs and devices/network conditions.
+- This workflow does not change your website files or Cloudflare settings.
