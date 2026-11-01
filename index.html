@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) - GA4 -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-7WJ6R8RH33"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -636,7 +636,7 @@ function renderAllToolsDropdown(){
  select.value=currentTool.name;
  select.onchange=()=>{const chosen=allTools.find(t=>t.name===select.value);if(chosen)selectTool(chosen)};
 }
-function selectTool(t){currentTool=t; if($("allToolsSelect"))$("allToolsSelect").value=t.name; if(t.mode==="pdf2img"&&!sourceFile){$("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");document.querySelector(".preview-panel").classList.add("hidden");}else if(t.mode!=="pdf2img"){document.querySelector(".preview-panel").classList.remove("hidden");if(!sourceFile){$("editor").classList.add("hidden");$("dropZone").classList.remove("hidden");}} $("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
+function selectTool(t){currentTool=t;if(window.pixelToolkitTrack)window.pixelToolkitTrack("tool_select",{tool_name:t.name,tool_mode:t.mode}); if($("allToolsSelect"))$("allToolsSelect").value=t.name; if(t.mode==="pdf2img"&&!sourceFile){$("dropZone").classList.add("hidden");$("editor").classList.remove("hidden");document.querySelector(".preview-panel").classList.add("hidden");}else if(t.mode!=="pdf2img"){document.querySelector(".preview-panel").classList.remove("hidden");if(!sourceFile){$("editor").classList.add("hidden");$("dropZone").classList.remove("hidden");}} $("selectedToolTitle").textContent=t.name;$("selectedToolDescription").textContent=t.desc;setStatus(t.mode==="advanced"?"Needs module":"Ready");$("resultBox").classList.add("hidden");$("downloadButton").disabled=!outputBlob;renderControls();renderGrid(null,search.value);window.scrollTo({top:$("workspace").offsetTop-75,behavior:"smooth"});}
 function field(label,id,value,type="number",extra=""){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}" ${extra}></div>`}
 function selectField(label,id,opts){return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
 function renderControls(){let m=currentTool.mode,html="";
@@ -725,6 +725,7 @@ function loadFiles(files){
    setStatus("No image selected");
    return;
  }
+ if(window.pixelToolkitTrack)window.pixelToolkitTrack("image_upload",{file_count:imageFiles.length});
  previewIndex=0;
  sourceFile=imageFiles[0];
  const url=URL.createObjectURL(sourceFile);
@@ -1018,13 +1019,13 @@ async function processPdfPageToImage(){
 }
 async function processImage(){
  const m=currentTool.mode;
- if(m==="pdf2img") {setStatus("Loading PDF…");$("processButton").disabled=true;try{await processPdfPageToImage()}catch(err){showResult("Could not convert PDF: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
+ if(m==="pdf2img") {setStatus("Loading PDF…");$("processButton").disabled=true;try{await processPdfPageToImage();if(window.pixelToolkitTrack)window.pixelToolkitTrack("image_process",{tool_name:currentTool.name,tool_mode:m})}catch(err){showResult("Could not convert PDF: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
  if(!sourceImage||!sourceFile){showResult("Choose an image first.");return}
  if(m==="advanced"){showResult("This tool still needs a dedicated module and is not implemented yet.");return}
- if(["bgremove","upscale","enhance","restore","denoise","base64decode","pdf","multipdf","qr","split","sourcezip"].includes(m)){setStatus("Processing…");$("processButton").disabled=true;try{await processAdvanced(m)}catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
+ if(["bgremove","upscale","enhance","restore","denoise","base64decode","pdf","multipdf","qr","split","sourcezip"].includes(m)){setStatus("Processing…");$("processButton").disabled=true;try{await processAdvanced(m);if(window.pixelToolkitTrack&&outputBlob)window.pixelToolkitTrack("image_process",{tool_name:currentTool.name,tool_mode:m})}catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}finally{$("processButton").disabled=false}return;}
  setStatus("Processing…");$("processButton").disabled=true;
  try{
-  if(["bulk","bulkaspect","bulkcompress","bulkconvert"].includes(m)){await processBatch(m);return;}
+  if(["bulk","bulkaspect","bulkcompress","bulkconvert"].includes(m)){await processBatch(m);if(window.pixelToolkitTrack&&outputBlob)window.pixelToolkitTrack("image_process",{tool_name:currentTool.name,tool_mode:m});return;}
   let c=document.createElement("canvas"),x=c.getContext("2d"),w=sourceImage.naturalWidth,h=sourceImage.naturalHeight;
   const get=(id,def)=>{const el=$(id);return el?el.value:def};
   const num=(id,def)=>Math.max(0,Number(get(id,def))||0);
@@ -1101,7 +1102,7 @@ async function processImage(){
   }else{
     outputBlob=await canvasBlob(c,outType,quality);const ext=outType==="image/jpeg"?"jpg":outType==="image/webp"?"webp":"png";outputName=`pixeltoolkit-${currentTool.mode}.${ext}`;showResult(`Done. Output dimensions: ${c.width} × ${c.height}. Output size: ${formatBytes(outputBlob.size)}.`);
   }
-  $("downloadButton").disabled=false;$("downloadButton").textContent="Download output";setStatus("Done");
+  $("downloadButton").disabled=false;$("downloadButton").textContent="Download output";setStatus("Done");if(window.pixelToolkitTrack&&outputBlob)window.pixelToolkitTrack("image_process",{tool_name:currentTool.name,tool_mode:m});
  }catch(err){showResult("Could not process this file: "+(err?.message||"unknown error"));setStatus("Error")}
  finally{$("processButton").disabled=false}
 }
@@ -1114,13 +1115,13 @@ function downloadBatchItem(index){
 $("resultBox").addEventListener("click",e=>{
  const target=e.target;
  if(!target)return;
- if(target.id==="downloadAllZip"){downloadAllBatchZip();return}
+ if(target.id==="downloadAllZip"){if(window.pixelToolkitTrack)window.pixelToolkitTrack("file_download",{tool_name:currentTool.name,download_type:"batch_zip"});downloadAllBatchZip();return}
  const idx=target.getAttribute("data-batch-download");
- if(idx!==null)downloadBatchItem(Number(idx));
+ if(idx!==null){if(window.pixelToolkitTrack)window.pixelToolkitTrack("file_download",{tool_name:currentTool.name,download_type:"batch_item"});downloadBatchItem(Number(idx));}
 });
 $("processButton").onclick=processImage;
 $("resetButton").onclick=()=>{outputBlob=null;$("downloadButton").disabled=true;$("resultBox").classList.add("hidden");renderControls();setStatus(sourceImage?"Image loaded":"Ready")};
-$("downloadButton").onclick=()=>{if(!outputBlob)return;const url=URL.createObjectURL(outputBlob);const a=document.createElement("a");a.href=url;a.download=outputName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
+$("downloadButton").onclick=()=>{if(!outputBlob)return;if(window.pixelToolkitTrack)window.pixelToolkitTrack("file_download",{tool_name:currentTool.name,download_type:"single"});const url=URL.createObjectURL(outputBlob);const a=document.createElement("a");a.href=url;a.download=outputName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
 $("previewImage").onclick=e=>{if(currentTool.mode!=="color"||!sourceImage)return;const rect=e.target.getBoundingClientRect(),x=Math.floor((e.clientX-rect.left)/rect.width*sourceImage.naturalWidth),y=Math.floor((e.clientY-rect.top)/rect.height*sourceImage.naturalHeight);const c=document.createElement("canvas");c.width=sourceImage.naturalWidth;c.height=sourceImage.naturalHeight;const cx=c.getContext("2d",{willReadFrequently:true});cx.drawImage(sourceImage,0,0);const p=cx.getImageData(Math.min(c.width-1,x),Math.min(c.height-1,y),1,1).data;showResult(`RGB(${p[0]}, ${p[1]}, ${p[2]}) · HEX #${[p[0],p[1],p[2]].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase()}`)};
 search.oninput=()=>renderGrid(null,search.value);
 $("themeToggle").onclick=()=>document.body.classList.toggle("dark");
