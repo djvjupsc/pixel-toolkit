@@ -32,3 +32,93 @@ body.dark .tool-card .planned{color:#f5c26b!important}
 #guide details[open] summary::after{content:"−"}
 #guide details summary:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 #guide details p{padding:0 14px 14px;margin:0;color:var(--text);line-height:1.65}
+
+
+/* PixelToolkit accessibility refinement: WCAG contrast and mobile touch targets */
+.tool-card small,
+.batch-result-item small,
+.field small,
+.drop-zone span,
+.drop-zone small,
+.workspace-head p,
+.hero p,
+.notice,
+.file-stats,
+.workspace-foot,
+footer,
+footer a {
+  color: #475467;
+}
+body.dark .tool-card small,
+body.dark .batch-result-item small,
+body.dark .field small,
+body.dark .drop-zone span,
+body.dark .drop-zone small,
+body.dark .workspace-head p,
+body.dark .hero p,
+body.dark .notice,
+body.dark .file-stats,
+body.dark .workspace-foot,
+body.dark footer,
+body.dark footer a {
+  color: #cbd5e1;
+}
+/* Keep secondary tool labels readable on both selected and unselected cards. */
+.tool-card.selected small { color: #344054; }
+body.dark .tool-card.selected small { color: #e2e8f0; }
+/* FAQ controls: full-width, generously sized and separated touch targets. */
+#guide details {
+  margin: 12px 0;
+}
+#guide details summary {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 16px 48px 16px 16px;
+  line-height: 1.5;
+  font-size: 14px;
+  color: #182230;
+  background: #ffffff;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(49, 87, 213, .16);
+}
+body.dark #guide details summary {
+  color: #f1f5f9;
+  background: #151e2f;
+}
+#guide details summary::after {
+  right: 16px;
+  min-width: 24px;
+  min-height: 24px;
+  display: grid;
+  place-items: center;
+}
+#guide details p {
+  padding: 0 16px 16px;
+  color: #344054;
+}
+body.dark #guide details p { color: #e2e8f0; }
+/* Make small interactive controls easier to tap on phones. */
+.nav-item,
+.text-button,
+.icon-button,
+.menu-toggle,
+.carousel-arrow,
+.preview-thumb,
+.tool-card,
+.hero-link,
+.social-link,
+.top-menu a {
+  min-height: 44px;
+}
+.nav-item { padding-top: 11px; padding-bottom: 11px; }
+.text-button { padding: 10px 12px; }
+@media (max-width: 600px) {
+  #guide details { margin: 14px 0; }
+  #guide details summary { min-height: 60px; padding: 17px 48px 17px 16px; }
+  .tool-card { min-height: 72px; }
+  .top-menu a { min-height: 48px; display: flex; align-items: center; justify-content: center; }
+}
+
