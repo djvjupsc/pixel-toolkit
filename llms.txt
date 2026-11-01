@@ -1,21 +1,21 @@
 # PixelToolkit
 
-> PixelToolkit is a browser-based image utility website by DigvijayEconLab. The site is designed for Android phones and desktop browsers. Common implemented image operations run in the user's browser.
+> PixelToolkit is a browser-based image utility website developed by DigvijayEconLab. It is designed for Android phones and desktop browsers. Common implemented image operations run in the user's browser.
 
-## Website
+## Website links
 
-- https://pixel-toolkit.pages.dev/ — Main image tools application.
-- https://pixel-toolkit.pages.dev/about.html — About PixelToolkit.
-- https://pixel-toolkit.pages.dev/contact.html — Contact information.
-- https://pixel-toolkit.pages.dev/privacy.html — Privacy information.
-- https://pixel-toolkit.pages.dev/terms.html — Terms of use.
+- [Open PixelToolkit](https://pixel-toolkit.pages.dev/)
+- [About PixelToolkit](https://pixel-toolkit.pages.dev/about.html)
+- [Contact PixelToolkit](https://pixel-toolkit.pages.dev/contact.html)
+- [Privacy Policy](https://pixel-toolkit.pages.dev/privacy.html)
+- [Terms of Use](https://pixel-toolkit.pages.dev/terms.html)
 
 ## Implemented image operations
 
 The current application includes browser-side functionality for common image tasks, including:
 
 - Image resizing and basic compression.
-- Crop, rotate, and flip.
+- Cropping, rotating, and flipping.
 - Borders and padding.
 - Blur and pixelation.
 - Brightness and contrast adjustments.
@@ -26,15 +26,15 @@ The current application includes browser-side functionality for common image tas
 
 ## Important feature limitations
 
-The tool directory also contains planned or dependency-required entries. The site does not claim that every listed tool is implemented. AI background removal, AI upscaling, image restoration, some document conversions, and other advanced entries may require additional modules, models, or libraries. Browser format support and output quality vary by device, browser, source file, and selected settings.
+The tool directory also contains planned or dependency-required entries. Not every listed tool is currently implemented. AI background removal, AI upscaling, image restoration, some document conversions, and other advanced entries may require additional modules, models, or libraries. Browser format support and output quality vary by device, browser, source file, and selected settings.
 
 ## Privacy and processing
 
-Core browser-based image operations are designed to process selected files locally on the user's device. Users should review the privacy page and the requirements shown by an individual tool before using it with sensitive material.
+Core browser-based image operations are designed to process selected files locally on the user's device. Users should review the [Privacy Policy](https://pixel-toolkit.pages.dev/privacy.html) and the requirements shown by an individual tool before using it with sensitive material.
 
-## Usage
+## How to use PixelToolkit
 
-1. Open the main website.
+1. [Open the PixelToolkit website](https://pixel-toolkit.pages.dev/).
 2. Select an available tool.
 3. Choose an image from the device.
 4. Adjust the available settings and process the image.
@@ -42,6 +42,6 @@ Core browser-based image operations are designed to process selected files local
 
 ## Discovery and machine-readable resources
 
-- https://pixel-toolkit.pages.dev/robots.txt
-- https://pixel-toolkit.pages.dev/sitemap.xml
-- https://pixel-toolkit.pages.dev/.well-known/ard.json
+- [Robots.txt](https://pixel-toolkit.pages.dev/robots.txt)
+- [XML Sitemap](https://pixel-toolkit.pages.dev/sitemap.xml)
+- [Agentic Resource Discovery manifest](https://pixel-toolkit.pages.dev/.well-known/ard.json)
