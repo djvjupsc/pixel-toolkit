@@ -7,8 +7,14 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-7WJ6R8RH33');
-</script>
+  const pixelToolkitDebug = new URLSearchParams(window.location.search).get('debug_mode') === 'true';
+  gtag('config', 'G-7WJ6R8RH33', { debug_mode: pixelToolkitDebug });
+  // Send privacy-safe tool interaction events to GA4.
+  window.pixelToolkitTrack = function(eventName, parameters) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, parameters || {});
+  };
+  </script>
 
 <meta name="google-adsense-account" content="ca-pub-3685731230653236">
   <script async
