@@ -1,0 +1,26 @@
+{
+  "entries": [
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "identifier": "urn:air:pixel-toolkit.pages.dev:web:pixeltoolkit",
+      "displayName": "PixelToolkit",
+      "type": "text/html",
+      "url": "https://pixel-toolkit.pages.dev/",
+      "description": "A browser-based image utility website by DigvijayEconLab. It provides implemented client-side image operations such as resizing, basic compression, cropping, rotation, flipping, format conversion where supported by the browser, borders, padding, blur, pixelation, brightness and contrast adjustments, text overlays, watermarks, collages, and basic image inspection. Some catalogue entries are planned or require additional dependencies.",
+      "tags": [
+        "image-tools",
+        "image-resizing",
+        "image-compression",
+        "image-editing",
+        "browser-based",
+        "client-side"
+      ],
+      "representativeQueries": [
+        "Find a browser-based tool to resize or compress an image on Android.",
+        "How can I crop, rotate, or convert an image in my browser?",
+        "Find online image editing tools that process common image operations locally."
+      ],
+      "version": "1.0"
+    }
+  ]
+}
