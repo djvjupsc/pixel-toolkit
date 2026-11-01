@@ -4,9 +4,6 @@ on:
   push:
     branches: [main, master]
   workflow_dispatch:
-  schedule:
-    # Every Monday at 03:30 UTC (09:00 AM India time)
-    - cron: '30 3 * * 1'
 
 permissions:
   contents: read
@@ -17,21 +14,88 @@ concurrency:
 
 jobs:
   lighthouse:
-    name: Audit live PixelToolkit website
+    name: Lighthouse SEO and Performance Audit
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Wait for Cloudflare Pages deployment
-        if: github.event_name == 'push'
-        run: sleep 120
+        shell: bash
+        run: |
+          URL="https://pixel-toolkit.pages.dev/"
+          echo "Waiting for $URL to become available..."
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --location --max-time 20 "$URL" -o /tmp/pixeltoolkit-home.html; then
+              if grep -qi "PixelToolkit" /tmp/pixeltoolkit-home.html; then
+                echo "Website is responding."
+                exit 0
+              fi
+            fi
+            echo "Attempt $attempt/30: site not ready; waiting 20 seconds..."
+            sleep 20
+          done
+          echo "::error::PixelToolkit did not become ready within 10 minutes."
+          exit 1
+
+      - name: Locate Chrome
+        id: chrome
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME" ]; then
+            echo "Chrome was not found on this runner."
+            exit 1
+          fi
+          echo "path=$CHROME" >> "$GITHUB_OUTPUT"
+          "$CHROME" --version
 
       - name: Run Lighthouse audit
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          urls: | https://pixel-toolkit.pages.dev/ https://pixel-toolkit.pages.dev/about.html https://pixel-toolkit.pages.dev/contact.html https://pixel-toolkit.pages.dev/privacy.html https://pixel-toolkit.pages.dev/terms.html           runs: 1
-          uploadArtifacts: true
-          temporaryPublicStorage: false
+        shell: bash
+        run: |
+          mkdir -p lighthouse-reports
+          npx --yes lighthouse@12.8.2 "https://pixel-toolkit.pages.dev/" \
+            --chrome-path="${{ steps.chrome.outputs.path }}" \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=html \
+            --output-path="lighthouse-reports/pixeltoolkit-lighthouse.html"
+          npx --yes lighthouse@12.8.2 "https://pixel-toolkit.pages.dev/" \
+            --chrome-path="${{ steps.chrome.outputs.path }}" \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=json \
+            --output-path="lighthouse-reports/pixeltoolkit-lighthouse.json"
 
-      - name: Explain report location
+      - name: Print Lighthouse scores
         if: always()
-        run: | echo 'Lighthouse HTML reports are uploaded as a workflow artifact.' echo 'Open Actions → this workflow run → Artifacts → download the Lighthouse reports.'
+        shell: bash
+        run: |
+          if [ -f lighthouse-reports/pixeltoolkit-lighthouse.json ]; then
+            node -e '
+              const r = require("./lighthouse-reports/pixeltoolkit-lighthouse.json");
+              const c = r.categories || {};
+              for (const k of ["performance","accessibility","best-practices","seo"]) {
+                const v = c[k]?.score;
+                console.log(`${k}: ${v == null ? "N/A" : Math.round(v * 100) + "/100"}`);
+              }
+            '
+          else
+            echo "Lighthouse JSON report was not generated."
+          fi
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixeltoolkit-lighthouse-reports
+          path: lighthouse-reports/
+          if-no-files-found: warn
+          retention-days: 14
