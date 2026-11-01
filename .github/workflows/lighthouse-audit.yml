@@ -1,0 +1,37 @@
+name: PixelToolkit Lighthouse Audit
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+  schedule:
+    # Every Monday at 03:30 UTC (09:00 AM India time)
+    - cron: '30 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixeltoolkit-lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Audit live PixelToolkit website
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for Cloudflare Pages deployment
+        if: github.event_name == 'push'
+        run: sleep 120
+
+      - name: Run Lighthouse audit
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: | https://pixel-toolkit.pages.dev/ https://pixel-toolkit.pages.dev/about.html https://pixel-toolkit.pages.dev/contact.html https://pixel-toolkit.pages.dev/privacy.html https://pixel-toolkit.pages.dev/terms.html           runs: 1
+          uploadArtifacts: true
+          temporaryPublicStorage: false
+
+      - name: Explain report location
+        if: always()
+        run: | echo 'Lighthouse HTML reports are uploaded as a workflow artifact.' echo 'Open Actions → this workflow run → Artifacts → download the Lighthouse reports.'
