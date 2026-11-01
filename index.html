@@ -276,6 +276,68 @@ body.dark #guide details p { color: #e2e8f0; }
   .top-menu a { min-height: 48px; display: flex; align-items: center; justify-content: center; }
 }
 
+
+
+/* Accessibility V3: explicit contrast and non-overlapping touch targets. */
+.tool-grid .tool-card small,
+.tool-grid .tool-card.selected small,
+.tool-grid .tool-card .planned {
+  color: #1f2937 !important;
+  opacity: 1 !important;
+  font-weight: 600;
+}
+body.dark .tool-grid .tool-card small,
+body.dark .tool-grid .tool-card.selected small,
+body.dark .tool-grid .tool-card .planned {
+  color: #f1f5f9 !important;
+  opacity: 1 !important;
+}
+.tool-group-heading span {
+  color: #344054 !important;
+  opacity: 1 !important;
+  font-weight: 600;
+}
+body.dark .tool-group-heading span {
+  color: #e2e8f0 !important;
+}
+#guide details {
+  margin: 12px 0 16px !important;
+}
+#guide details > summary {
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 64px !important;
+  padding: 18px 52px 18px 18px !important;
+  line-height: 1.5 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  touch-action: manipulation;
+  list-style-position: inside;
+}
+#guide details > summary:focus-visible {
+  outline: 3px solid #3157d5 !important;
+  outline-offset: -3px !important;
+}
+#guide details > summary::after {
+  right: 16px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+}
+#guide details > p {
+  padding: 0 18px 18px !important;
+  line-height: 1.65 !important;
+}
+@media (max-width: 600px) {
+  #guide details { margin: 14px 0 18px !important; }
+  #guide details > summary {
+    min-height: 68px !important;
+    padding: 18px 52px 18px 16px !important;
+  }
+}
+
 </style>
 
 <link rel="manifest" href="/manifest.webmanifest">
