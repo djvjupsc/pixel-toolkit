@@ -176,6 +176,12 @@ html{scroll-behavior:smooth;scroll-padding-top:86px}
 }
 
 </style>
+
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
 <header class="topbar">
@@ -847,6 +853,10 @@ $("year").textContent=new Date().getFullYear();
 try{if((window.screen&&window.screen.width<=600)||/Android|iPhone|iPod|Mobile/i.test(navigator.userAgent))document.documentElement.classList.add("force-mobile")}catch(e){}
 renderAllToolsDropdown();renderNav();renderGrid();renderControls();
 
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") { window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js").catch(err => console.warn("PWA service worker registration failed", err))); }
 </script>
 </body>
 </html>
